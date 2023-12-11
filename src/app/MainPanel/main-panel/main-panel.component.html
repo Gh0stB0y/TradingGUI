@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+
+        <link href="../../../../css/main.min.css" rel="stylesheet">
+        <script>
+             const navLinkEls = document.querySelectorAll('.nav-link');
+            navLinkEls.forEach(navLinkEl =>{
+
+                navLinkEl.addEventListener('click',()=>{
+                    navLinkEl.classList.add('active');
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div class="p-2 z-1 position-absolute top-0 end-0 p-0">
+
+            <div class="dropdown customDropdown">
+                <button class="btn dropdown-toggle customDropdownToggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="../../../assets/userIcon.png" alt="ProfileMenuIcon">
+                </button>
+                
+                <ul class="dropdown-menu dropdown-menu-dark p-0">
+                    <li><p class="dropdown-item-text">Account ID</p></li>
+                    <li><a class="dropdown-item" href="#">Activity log</a></li>
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Logout</a></li>
+                </ul>
+            </div>       
+
+        </div>  
+
+        <div class="h-100 mh-100 m-0">
+            <div class="customBar">
+                <nav class="nav nav-underline justify-content-center  p-2 fs-3">
+                    <li class="nav-item">
+                        <a class="nav-link" [class.active]="check" href="#" data-toggle="tab" data-target="#manage-charts">Manage charts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" [class.active]="check" aria-current="page" href="#" data-toggle="tab" data-target="#manage-instruments">Manage instruments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"[class.active]="check" href="#" data-toggle="tab" data-target="#trading-signals">Trading signals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" [class.active]="check" href="#" data-toggle="tab" data-target="#transactions">Transactions</a>
+                    </li>
+                </nav>                
+            </div>
+            
+            <div class="WorkingSpace container-fluid m-0 d-flex p-2">       
+
+                <div class="LeftWindow border border-1 rounded-start-3 border-white overflow-auto">
+                    <h4 class="p-3 text-center">SUBSCRIBED:</h4> 
+
+                    <div class="accordion p-2">
+                        <div *ngFor="let element of elements; let i = index">
+                        
+                            <div class="accordion-item p-2">
+                                <h2 class="accordion-header">
+                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse' + i" aria-expanded="false" [attr.aria-controls]="'collapse' + i">
+                                    {{element}}
+                                  </button>
+                                </h2>
+                                <div [id]="'collapse' + i" class="accordion-collapse collapse CollapsedInfo">
+                                  <div class="accordion-body p-2">
+                                    <div *ngFor="let interval of intervals; let j = index">                                    
+                                        <div class="btn-group py-1" role="group" aria-label="Basic example">
+                                            <button type="button" class="btn btn-primary text-start fs-5 InstrumentName">{{interval}}</button>
+                                            <button type="button" class="btn btn-primary UnsubInstrument">
+                                                <img src="../../../assets/RedCross.png" alt="UnsubInstrument">
+                                            </button>
+                                        </div>                            
+                                    </div>                                                                                              
+                                    <button type="button" class="btn btn-danger UnsubAll">
+                                        Unsubscribe All
+                                    </button>                                    
+                                  </div>
+                                </div>
+                            </div>
+                        
+                        </div>
+                        
+                        
+                    </div>
+                    
+                    
+                </div>
+
+                <div class="Main p-2 border border-1 border-white">
+                    <div [ngSwitch]="condition">                  
+                        <app-manage-charts *ngSwitchCase="'case1'">This is content for Case 3.</app-manage-charts>
+                        <app-manage-instruments *ngSwitchCase="'case2'">This is content for Case 3.</app-manage-instruments>
+                        <app-trading-signals *ngSwitchCase="'case3'">This is content for Case 2.</app-trading-signals>
+                        <app-transactions *ngSwitchCase="'case4'">This is content for Case 1.</app-transactions>
+                        <app-main-window *ngSwitchDefault></app-main-window>
+                    </div>
+                </div>
+
+                <div class="RightWindow border border-1 rounded-end-3 border-white">
+                    <h5 class="py-3 text-center">TRADE SIGNALS - CURRENT SESSION:</h5> 
+
+                    <div class="dropdown px-2">
+                        <div class="btn-group px-1">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                              Instruments
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" value="" id="firstCheckbox">
+                                    <label class="form-check-label" for="firstCheckbox">First checkbox</label>
+                                  </li>
+                                  <li class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" value="" id="secondCheckbox">
+                                    <label class="form-check-label" for="secondCheckbox">Second checkbox</label>
+                                  </li>
+                                  <li class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" value="" id="thirdCheckbox">
+                                    <label class="form-check-label" for="thirdCheckbox">Third checkbox</label>
+                                </li>                                
+                            </ul>
+                        </div>  
+                        <div class="btn-group px-1">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                              Intervals
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" value="" id="firstCheckbox">
+                                    <label class="form-check-label" for="firstCheckbox">First checkbox</label>
+                                  </li>
+                                  <li class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" value="" id="secondCheckbox">
+                                    <label class="form-check-label" for="secondCheckbox">Second checkbox</label>
+                                  </li>
+                                  <li class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" value="" id="thirdCheckbox">
+                                    <label class="form-check-label" for="thirdCheckbox">Third checkbox</label>
+                                </li>                                
+                            </ul>
+                        </div>   
+                        <div class="btn-group px-1">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                              Sort by
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a class="dropdown-item" href="#">Ascending</a></li>
+                              <li><a class="dropdown-item" href="#">Descending</a></li>
+                            </ul>
+                          </div>
+                                               
+                    </div>
+
+                    <div *ngFor="let tradeSignal of tradeSignals; let i = index">
+                    
+                    
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+                
+    </body>
+
+</html>
