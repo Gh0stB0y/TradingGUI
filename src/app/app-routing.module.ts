@@ -7,7 +7,8 @@ import { MainWindowComponent } from './MainWindow/main-window/main-window.compon
 
 const routes: Routes = [
 
-  {path:'', component: LoginComponentComponent}
+  {path:'', component: LoginComponentComponent},
+  {path:'Panel', component: MainPanelComponent}
 ];
 
 @NgModule({

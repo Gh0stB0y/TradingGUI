@@ -20,34 +20,47 @@
       </symbol>
     </svg>
     
-<main class="form-signin w-100 m-auto">
-  <form>
 
-    <h1 class="h3 mb-3 fw-normal">Sign in using Xtb credentials</h1>
+<div *ngIf="InitialWaiting" class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 100vh;">
+  
+  <div class="spinner-border " style="width: 7vw; height: 7vw;" role="status">
+  </div>
+  <p class="p-3 fs-3">Retrieving session data, please wait...</p>
+
+</div>
+
+<main *ngIf="!InitialWaiting" class="form-signin w-100 m-auto">
+  <form (ngSubmit)="Login()">
+
+    <h1 class="h3 mb-3 fw-normal">Sign in using XTB credentials</h1>
 
     <div class="form-floating">
-      <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com">
+      <input type="text" class="form-control" id="floatingInput" placeholder="Account Id" [(ngModel)]="LoginData.Id" name="id">
       <label for="floatingInput">Account Id</label>
     </div>
     <div class="form-floating">
-      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+      <input type="password" class="form-control" id="floatingPassword" placeholder="Password" [(ngModel)]="LoginData.Password" name="password">
       <label for="floatingPassword">Password</label>
     </div>
     <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-      <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked (click)="AccountType(true)">
       <label class="btn btn-outline-primary" for="btnradio1">Real account</label>
     
-      <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" (click)="AccountType(false)">
       <label class="btn btn-outline-primary" for="btnradio2">Demo account</label>        
     </div>
-    <div class="form-check text-start my-3">
-      <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
+    <div class="form-check text-start my-0">
+      <!-- <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault" [(ngModel)]="RememberMe" name="remember-me">
       <label class="form-check-label" for="flexCheckDefault">
         Remember me
-      </label>
+      </label> -->
     </div>
-    <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
-    <p class="text-danger fs-4 p-2">dupa</p>
+    <button class="btn btn-primary w-100 py-2" type="submit">
+      <span *ngIf="WaitingForResponse" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+      Sign in
+    </button>
+    <p *ngIf='ErrorMsg!==""' class="text-danger fs-6 p-2">{{ErrorMsg}}</p>
+    
   </form>
 </main>
 <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

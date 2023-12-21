@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { LoginComponentComponent } from './login-component.component';
 
 describe('LoginComponentComponent', () => {

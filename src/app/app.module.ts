@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponentComponent } from './Login/login-component/login-component.component';
@@ -10,6 +10,7 @@ import { ManageChartsComponent } from './ManageCharts/manage-charts/manage-chart
 import { ManageInstrumentsComponent } from './ManageInstruments/manage-instruments/manage-instruments.component';
 import { TradingSignalsComponent } from './TradingSignals/trading-signals/trading-signals.component';
 import { TransactionsComponent } from './Transactions/transactions/transactions.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,9 @@ import { TransactionsComponent } from './Transactions/transactions/transactions.
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
