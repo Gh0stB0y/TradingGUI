@@ -1,5 +1,5 @@
 export interface SubscribeInstrumentDTO
 {
-    Token:string;
+    Jwt:string;
     Instrument:string;
 }

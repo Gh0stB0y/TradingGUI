@@ -16,23 +16,23 @@ import { SignalRService } from 'src/app/Services/signalr.service';
               "../../../../css/main.min.css"]
 })
 export class MainPanelComponent implements OnInit {
-  constructor(private httpService:HttpServicesService, private router:Router,private signalRService: SignalRService) {}
+  constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService) {}
   elements:SubscribedItemUI[]=[];
   // elements = ['OIL.WTI', 'EURUSD', 'EURPLN', 'USDPLN', 'WIG20'];
   intervals =['M5', 'M15', 'H1', 'H4', 'D1', 'W1'];
   tradeSignals =['trade1','trade1','trade1','trade1','trade1'];
 
-  condition:string='case4';
-
+  condition:number=0;
+  InitialWaiting: boolean =true;
   navbarCheck:boolean[]=[false,false,false,false];
   
-  ngOnInit(): void {
-    const SessionId = localStorage.getItem("sessionId");
-    const Token = localStorage.getItem("token");
+  ngOnInit(): void {    
+    let SessionId = localStorage.getItem("sessionId");
+    let Token = localStorage.getItem("token");
 
     if(SessionId && Token)
     {
-      const data:LoginResponseDTO = {
+      let data:LoginResponseDTO = {
         sessionId: SessionId.toString(),
         token: Token.toString()
       }
@@ -40,24 +40,29 @@ export class MainPanelComponent implements OnInit {
       .subscribe
       ({
         next: (returnData)=>{
-          
+          this.InitialWaiting=false;
           localStorage.setItem("sessionId",returnData.sessionId);
           localStorage.setItem("token", returnData.token);
-          
+          SessionId=returnData.sessionId;
+          Token=returnData.token;
+          data = 
+            {
+            sessionId: SessionId.toString(),
+            token: Token.toString()
+            }
+          this.signalRService.startConnection(data);
         },
         error:(err) =>{
           console.error(err.error);
           this.router.navigate(['']);
         }
-      });
+      });              
     }
     else
     {
       this.router.navigate(['']);
     }
   }
-
-
   ChooseNavbar(navbarId:number){
     for (let i = 0; i < this.navbarCheck.length; i++) 
     {
@@ -66,6 +71,7 @@ export class MainPanelComponent implements OnInit {
         this.navbarCheck[navbarId]=true;
       }
     }
+    this.condition=navbarId;
   }
   ManageSubscribtion(subscribe:boolean,data:string):void
   {
@@ -74,13 +80,13 @@ export class MainPanelComponent implements OnInit {
     {
       let instrument:SubscribeInstrumentDTO=
       {
-        Token: jwt.toString(),
+        Jwt: jwt.toString(),
         Instrument:data
       }
-      if(subscribe)
-        this.signalRService.SubscribeInstrument(instrument);
-      else
-        this.signalRService.UnsubscribeInstrument(instrument);
+      // if(subscribe)
+      //   this.signalRService.SubscribeInstrument(instrument);
+      // else
+      //   this.signalRService.UnsubscribeInstrument(instrument);
     }    
   }
   Logout(){
@@ -94,17 +100,8 @@ export class MainPanelComponent implements OnInit {
         sessionId: SessionId.toString(),
         token: Token.toString()
       }
-      console.log("CHUJ");
-      this.httpService.LogoutRequest(data)
-      .subscribe
-      ({ 
-        next: (returnData)=>{
-        
-      },
-        error:(err) =>{
-        
-      }
-      });             
+                  
+      this.signalRService.stopConnection();
     }
     LogoutClear(this.router);
   }
