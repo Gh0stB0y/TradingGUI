@@ -72,11 +72,8 @@ export class LoginComponentComponent implements OnInit {
       {
         localStorage.setItem("sessionId",returnData.sessionId);
         localStorage.setItem("token", returnData.token);
-        
+        localStorage.setItem("accountId",this.LoginData.Id);
         this.WaitingForResponse=false;
-
-        console.log(returnData.sessionId);
-        console.log(returnData.token);
         this.router.navigate(['Panel']);
       },
       error:(err)=>

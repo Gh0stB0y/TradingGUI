@@ -14,14 +14,16 @@
         </script>
     </head>
     <body>
-        <div *ngIf="InitialWaiting" class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 100vh;">
+        <div *ngIf="initialWaiting" class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 100vh;">
   
             <div class="spinner-border " style="width: 7vw; height: 7vw;" role="status">
             </div>
             <p class="p-3 fs-3">Retrieving session data, please wait...</p>
         </div>
 
-        <div class="h-100 mh-100 m-0" *ngIf="!InitialWaiting">
+        <div class="h-100 mh-100 m-0" *ngIf="!initialWaiting">
+            
+            <!-- dropdown -->
             <div class="p-2 z-1 position-absolute top-0 end-0 p-0">
 
                 <div class="dropdown customDropdown">
@@ -30,7 +32,7 @@
                     </button>
                     
                     <ul class="dropdown-menu dropdown-menu-dark p-0">
-                        <li><p class="dropdown-item-text">Account ID</p></li>
+                        <li><p class="dropdown-item-text">ID: {{accountId}}</p></li>
                         <li><a class="dropdown-item">Activity log</a></li>
                         <li><a class="dropdown-item">Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
@@ -39,8 +41,10 @@
                 </div>       
 
             </div>  
-
-            <div class="h-100 mh-100 m-0">
+            
+            
+            <div class="h-100 mh-100 m-0"> 
+                <!-- navbar -->
                 <div class="customBar">
                     <nav class="nav nav-underline justify-content-center  p-2 fs-3">
                         <li class="nav-item">
@@ -57,63 +61,68 @@
                         </li>
                     </nav>                
                 </div>
-                
-                <div class="WorkingSpace container-fluid m-0 d-flex p-2">       
 
-                    <div class="LeftWindow border border-1 rounded-start-3 border-white overflow-auto">
-                        <h4 class="p-3 text-center">SUBSCRIBED:</h4> 
+            <!-- main content -->
+            <div class="WorkingSpace container-fluid m-0 d-flex p-2">       
 
-                        <div class="accordion p-2">
-                            <div *ngFor="let element of elements; let i = index">
-                            
-                                <div class="accordion-item p-2">
-                                    <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse' + i" aria-expanded="false" [attr.aria-controls]="'collapse' + i">
-                                        {{element.Name}}
-                                    </button>
-                                    </h2>
-                                    <div [id]="'collapse' + i" class="accordion-collapse collapse CollapsedInfo">
-                                    <div class="accordion-body p-2">
-                                        <div *ngFor="let interval of element.Intervals; let j = index">                                    
-                                            <div class="btn-group py-1" role="group" aria-label="Basic example">
-                                                <button type="button" class="btn btn-primary text-start fs-5 InstrumentName">{{interval}}</button>
-                                                <button type="button" class="btn btn-primary UnsubInstrument">
-                                                    <img src="../../../assets/RedCross.png" alt="UnsubInstrument">
-                                                </button>
-                                            </div>                            
-                                        </div>                                                                                              
-                                        <button type="button" class="btn btn-danger UnsubAll">
-                                            Unsubscribe All
-                                        </button>                                    
-                                    </div>
-                                    </div>
+                <!-- Left Window -->
+                <div class="LeftWindow border border-1 rounded-start-3 border-white overflow-auto">
+                    <h4 class="p-3 text-center">SUBSCRIBED:</h4> 
+
+                    <div class="accordion p-2">
+                        <div *ngFor="let element of elements; let i = index">
+                        
+                            <div class="accordion-item p-2">
+                                <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse' + i" aria-expanded="false" [attr.aria-controls]="'collapse' + i">
+                                    {{element.Name}}
+                                </button>
+                                </h2>
+                                <div [id]="'collapse' + i" class="accordion-collapse collapse CollapsedInfo">
+                                <div class="accordion-body p-2">
+                                    <div *ngFor="let interval of element.Intervals; let j = index">                                    
+                                        <div class="btn-group py-1" role="group" aria-label="Basic example">
+                                            <button type="button" class="btn btn-primary text-start fs-5 InstrumentName">{{interval}}</button>
+                                            <button type="button" class="btn btn-primary UnsubInstrument">
+                                                <img src="../../../assets/RedCross.png" alt="UnsubInstrument">
+                                            </button>
+                                        </div>                            
+                                    </div>                                                                                              
+                                    <button type="button" class="btn btn-danger UnsubAll">
+                                        Unsubscribe All
+                                    </button>                                    
                                 </div>
-                            
+                                </div>
                             </div>
-                            
-                            
+                        
                         </div>
                         
                         
                     </div>
+                    
+                    
+                </div>
 
-                    <div class="Main p-2 border border-1 border-white">
+                <!-- Main Window -->
+                <div class="Main p-2 border border-1 border-white">
 
-                        <button (click)="ManageSubscribtion(true,'OIL.WTI')">OIL.WTI subscribe</button>
-                        <div [ngSwitch]="condition">                  
-                            <app-manage-charts *ngSwitchCase="0">This is content for Case 3.</app-manage-charts>
-                            <app-manage-instruments *ngSwitchCase="1">This is content for Case 3.</app-manage-instruments>
-                            <app-trading-signals *ngSwitchCase="2">This is content for Case 2.</app-trading-signals>
-                            <app-transactions *ngSwitchCase="3">This is content for Case 1.</app-transactions>
-                            <app-main-window *ngSwitchDefault></app-main-window>
-                        </div>
+                    <button (click)="ManageSubscribtion(true,'OIL.WTI')">OIL.WTI subscribe</button>
+                    <div [ngSwitch]="currentNavbar">                  
+                        <app-manage-charts *ngSwitchCase="0">This is content for Case 3.</app-manage-charts>
+                        <app-manage-instruments *ngSwitchCase="1">This is content for Case 3.</app-manage-instruments>
+                        <app-trading-signals *ngSwitchCase="2">This is content for Case 2.</app-trading-signals>
+                        <app-transactions *ngSwitchCase="3">This is content for Case 1.</app-transactions>
+                        <app-main-window *ngSwitchDefault></app-main-window>
                     </div>
+                </div>
 
-                    <div class="RightWindow border border-1 rounded-end-3 border-white">
+                <!-- Right Window -->
+                <div class="RightWindow border border-1 rounded-end-3 border-white">
+
+                    <div class="Menu">
                         <h5 class="py-3 text-center">TRADE SIGNALS - CURRENT SESSION:</h5> 
-
-                        <div class="dropdown px-2">
-                            <div class="btn-group px-1">
+                        <div class="SortDropdown dropdown px-2">
+                            <div class="SortButtons btn-group px-1">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                                 Instruments
                                 </button>
@@ -162,14 +171,36 @@
                             </div>
                                                 
                         </div>
-
-                        <div *ngFor="let tradeSignal of tradeSignals; let i = index">
-                        
-                        
-                        </div>
                     </div>
                     
+                    <div class="Signals p-2 overflow-auto">
+                        <div *ngFor="let tradeSignal of tradeSignals; let i = index">
+                        
+                        <p>{{tradeSignal.toString()}}</p>
+                        </div>
+                    </div>
+                    <div class="Alerts border-top border-1 border-white p-2">
+                        <div class="MessageMenu d-flex bg-secondary">
+                            <h5 class="d-flex align-items-center justify-content-center fw-bold text-center">Message box</h5>
+                            <button type="button" class="btn btn-danger" (click)="ClearChat()">Clear</button>
+                        </div>
+                        
+                        <div *ngIf="messages.length>0" class="MessageInfo overflow-auto">
+                            <div class="h-auto bg-secondary py-2 px-0" style="--bs-bg-opacity: .25;" >
+                                <p *ngFor="let message of messages; let i = index" class="text-break px-2 py-1 m-0" style="--bs-bg-opacity: .5"
+                                    [ngClass]="{'bg-warning': message.msgType === 'Warning','bg-danger': message.msgType === 'Error'|| message.msgType === 'Critical'}" 
+                                    [ngStyle]="{'--bs-bg-opacity: 1':message.msgType === 'Critical'}">
+
+                                    {{message.msgVal}}
+                                </p>
+                            </div>
+                        </div>
+                        
+
+                    </div>
                 </div>
+                
+            </div>
             </div>
         </div>      
     </body>

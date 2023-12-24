@@ -2,12 +2,15 @@ import { NgFor } from '@angular/common';
 import { Token } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { error } from 'jquery';
 import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
+import { MyMessageDTO } from 'src/Models/MyMessageDTO';
 import { SubscribeInstrumentDTO } from 'src/Models/SubscribeInstrumentDTO';
 import { SubscribedItemUI } from 'src/Models/SubscribedItemUI';
 import { Logout as LogoutClear } from 'src/app/GlobalMethods/Logout';
 import { HttpServicesService } from 'src/app/Services/http-services.service';
 import { SignalRService } from 'src/app/Services/signalr.service';
+
 
 @Component({
   selector: 'app-main-panel',
@@ -17,40 +20,50 @@ import { SignalRService } from 'src/app/Services/signalr.service';
 })
 export class MainPanelComponent implements OnInit {
   constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService) {}
+
+  accountId:string = "";
+  currentNavbar:number=0;
   elements:SubscribedItemUI[]=[];
   // elements = ['OIL.WTI', 'EURUSD', 'EURPLN', 'USDPLN', 'WIG20'];
-  intervals =['M5', 'M15', 'H1', 'H4', 'D1', 'W1'];
-  tradeSignals =['trade1','trade1','trade1','trade1','trade1'];
-
-  condition:number=0;
-  InitialWaiting: boolean =true;
+  initialWaiting: boolean =true;
+  intervals:string [] =['M5', 'M15', 'H1', 'H4', 'D1', 'W1'];
+  messages:MyMessageDTO[] = [];
   navbarCheck:boolean[]=[false,false,false,false];
+  tradeSignals:string [] =['trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1'];
+  
+
   
   ngOnInit(): void {    
-    let SessionId = localStorage.getItem("sessionId");
-    let Token = localStorage.getItem("token");
-
-    if(SessionId && Token)
+    let accountId = localStorage.getItem("accountId");
+    if(accountId) this.accountId = accountId.toString();
+    
+    let sessionId = localStorage.getItem("sessionId");
+    let token = localStorage.getItem("token");
+    
+    if(sessionId && token)
     {
       let data:LoginResponseDTO = {
-        sessionId: SessionId.toString(),
-        token: Token.toString()
+        sessionId: sessionId.toString(),
+        token: token.toString()
       }
       this.httpService.CheckSession(data)
       .subscribe
       ({
         next: (returnData)=>{
-          this.InitialWaiting=false;
+          this.initialWaiting=false;
           localStorage.setItem("sessionId",returnData.sessionId);
           localStorage.setItem("token", returnData.token);
-          SessionId=returnData.sessionId;
-          Token=returnData.token;
+          sessionId=returnData.sessionId;
+          token=returnData.token;
           data = 
             {
-            sessionId: SessionId.toString(),
-            token: Token.toString()
-            }
-          this.signalRService.startConnection(data);
+            sessionId: sessionId.toString(),
+            token: token.toString()
+            };
+           this.signalRService.startConnection(data);
+           this.TokenUpdateListener();
+           this.ErrorMessageListener();
+           this.LogoutListener();
         },
         error:(err) =>{
           console.error(err.error);
@@ -62,7 +75,9 @@ export class MainPanelComponent implements OnInit {
     {
       this.router.navigate(['']);
     }
+
   }
+  
   ChooseNavbar(navbarId:number){
     for (let i = 0; i < this.navbarCheck.length; i++) 
     {
@@ -71,7 +86,15 @@ export class MainPanelComponent implements OnInit {
         this.navbarCheck[navbarId]=true;
       }
     }
-    this.condition=navbarId;
+    this.currentNavbar=navbarId;
+  }
+  ClearChat():void{
+    this.messages=[];
+  }
+  Logout(){
+    this.signalRService.Logout();
+    LogoutClear(this.router);
+    this.router.navigate(['']);
   }
   ManageSubscribtion(subscribe:boolean,data:string):void
   {
@@ -83,26 +106,35 @@ export class MainPanelComponent implements OnInit {
         Jwt: jwt.toString(),
         Instrument:data
       }
-      // if(subscribe)
-      //   this.signalRService.SubscribeInstrument(instrument);
-      // else
-      //   this.signalRService.UnsubscribeInstrument(instrument);
+       if(subscribe)
+         this.signalRService.SubscribeInstrument(instrument);
+       else
+         this.signalRService.UnsubscribeInstrument(instrument);
     }    
   }
-  Logout(){
-    const SessionId = localStorage.getItem("sessionId");
-    const Token = localStorage.getItem("token");
-
-    if(SessionId && Token)
+  //Listeners
+  ErrorMessageListener():void{
+    this.signalRService.MessageListener().subscribe((error)=>
     {
-      const data:LoginResponseDTO = 
-      {
-        sessionId: SessionId.toString(),
-        token: Token.toString()
-      }
-                  
-      this.signalRService.stopConnection();
-    }
-    LogoutClear(this.router);
+      this.messages.push(error);
+    })
   }
+  LogoutListener():void{
+    this.signalRService.LogoutListener().subscribe(()=>
+    {
+      this.Logout();
+      this.router.navigate(['']);
+    });
+  }
+  TokenUpdateListener():void{
+    this.signalRService.UpdateTokenListener().subscribe((data) => 
+    {
+      console.log(data.sessionId);
+      console.log(data.token);
+      localStorage.setItem("sessionId",data.sessionId);
+      localStorage.setItem("token", data.token);
+    });
+  }
+  //
+
 }
