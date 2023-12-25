@@ -1,0 +1,29 @@
+html,body{
+    height: 100%;
+    width: 100%;
+}
+.MainBody{
+    height: 100%;
+    min-height: 100%;
+}
+.customBar{
+    height: 10%;
+    .nav-item{
+        a:hover{
+            cursor: pointer;
+        }
+    }
+}
+.MyTableSpace{
+    height: 90%;
+    li:hover{
+        cursor: pointer;
+    }
+}
+.MyTable{
+    height: 90%;    
+    .TableRecord{
+        width: 17%;
+        height: 12.5%;
+    }
+}

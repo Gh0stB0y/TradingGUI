@@ -22,7 +22,7 @@ export class MainPanelComponent implements OnInit {
   constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService) {}
 
   accountId:string = "";
-  currentNavbar:number=0;
+  currentNavbar:number=1;
   elements:SubscribedItemUI[]=[];
   // elements = ['OIL.WTI', 'EURUSD', 'EURPLN', 'USDPLN', 'WIG20'];
   initialWaiting: boolean =true;
@@ -34,6 +34,7 @@ export class MainPanelComponent implements OnInit {
 
   
   ngOnInit(): void {    
+    this.ChooseNavbar(this.currentNavbar);
     let accountId = localStorage.getItem("accountId");
     if(accountId) this.accountId = accountId.toString();
     

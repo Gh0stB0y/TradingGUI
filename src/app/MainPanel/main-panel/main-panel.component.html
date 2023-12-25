@@ -104,15 +104,13 @@
                 </div>
 
                 <!-- Main Window -->
-                <div class="Main p-2 border border-1 border-white">
-
-                    <button (click)="ManageSubscribtion(true,'OIL.WTI')">OIL.WTI subscribe</button>
-                    <div [ngSwitch]="currentNavbar">                  
-                        <app-manage-charts *ngSwitchCase="0">This is content for Case 3.</app-manage-charts>
-                        <app-manage-instruments *ngSwitchCase="1">This is content for Case 3.</app-manage-instruments>
-                        <app-trading-signals *ngSwitchCase="2">This is content for Case 2.</app-trading-signals>
-                        <app-transactions *ngSwitchCase="3">This is content for Case 1.</app-transactions>
-                        <app-main-window *ngSwitchDefault></app-main-window>
+                <div class="Main p-2 border border-1 border-white">                    
+                    <div class="MainWindowContent h-100 m-0 p-0" [ngSwitch]="currentNavbar">                  
+                        <app-manage-charts *ngSwitchCase="0" class="MainWindowComponent h-100">This is content for Case 3.</app-manage-charts>
+                        <app-manage-instruments *ngSwitchCase="1" class="MainWindowComponent h-100">This is content for Case 3.</app-manage-instruments>
+                        <app-trading-signals *ngSwitchCase="2" class="MainWindowComponent h-100">This is content for Case 2.</app-trading-signals>
+                        <app-transactions *ngSwitchCase="3" class="MainWindowComponent h-100">This is content for Case 1.</app-transactions>
+                        <app-main-window *ngSwitchDefault class="MainWindowComponent h-100"></app-main-window>
                     </div>
                 </div>
 

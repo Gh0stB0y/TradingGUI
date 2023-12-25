@@ -1,1 +1,83 @@
-<p>manage-instruments works!</p>
+<!-- <p>This window will provide following options: subsribe with sorting mechanism, unsubscribe symbol, list of subscribed symbols with sorting and filtering mechanism,
+    ONLY SUBSCRIBED ELEMENTS WILL BE PROCESSED!
+    Subsribed elements will be shown in a table with colums:
+    Name
+    Instrument Category
+    Ask
+    Bid
+    Subscribed since
+
+    Table also will be sortable and filtrable
+    Every subscribed instrument can be unsubscribed by clicking on red button, can also be redirected to chart by clicking
+</p> -->
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <link href="../../../../css/main.min.css" rel="stylesheet">
+        <script>
+             const navLinkEls = document.querySelectorAll('.nav-link');
+            navLinkEls.forEach(navLinkEl =>{
+
+                navLinkEl.addEventListener('click',()=>{
+                    navLinkEl.classList.add('active');
+                });
+            });
+        </script>
+    </head>
+
+
+    <body>
+
+        <div *ngIf="initialWaiting" class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 100%;">
+  
+            <div class="spinner-border " style="width: 7vw; height: 7vw;" role="status">
+            </div>
+            <p class="p-3 fs-3">Loading data, please wait...</p>
+        </div>
+        
+        <div class="h-100 mh-100 m-0" *ngIf="!initialWaiting">
+            <div class="customBar">
+                <nav class="nav nav-underline justify-content-center fs-3 h-100">
+                    <li class="nav-item px-5">
+                        <a class="nav-link" [class.active]="navbarCheck[0]" (click)="ChooseNavbar(0)" data-toggle="tab" data-target="#manage-charts">Available instruments</a>
+                    </li>
+                    <li class="nav-item px-5">
+                        <a class="nav-link" [class.active]="navbarCheck[1]" (click)="ChooseNavbar(1)" aria-current="page" data-toggle="tab" data-target="#manage-instruments">Subscribed instruments</a>
+                    </li>               
+                </nav>                
+            </div>
+            <div class="MyTableSpace">
+                <table class="MyTable table">
+                    <thead>
+                        <tr>
+                        <th scope="col">Instrument</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Ask</th>
+                        <th scope="col">Bid</th>
+                        <th scope="col">Leverage</th>
+                        <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <tr *ngFor="let element of notSubscribedTablePage" class="TableRow align-middle">                            
+                            <td class="TableRecord">{{element.Name}}</td>
+                            <td class="TableRecord">{{element.Category}}</td>
+                            <td class="TableRecord">{{element.Ask}}</td>
+                            <td class="TableRecord">{{element.Bid}}</td>
+                            <td class="TableRecord">{{element.Leverage}}</td>
+                            <td style="width: 15%"> 
+                                <button *ngIf="element.Name.length>1" type="button" class="btn btn-primary w-100" >subscribe</button>
+                            </td>
+                        </tr>                            
+                    </tbody>
+                </table>
+                <nav *ngIf="multipage[0]" aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                      <li class="page-item"><a class="page-link" (click)="ChangePage(true,currentPage[0]-1,true)">Previous</a></li>
+                      <li *ngFor="let page of paginationCheck[0];let i = index" class="page-item"><a class="page-link" [class.active]="page" (click)="ChangePage(true,i+1,false)">{{paginationDisplay[0][i]}}</a></li>
+                      <li class="page-item"><a class="page-link" (click)="ChangePage(true,currentPage[0]+1,true)">Next</a></li>
+                    </ul>
+                  </nav>
+            </div>
+        </div>
+    </body>
+</html>
