@@ -60,23 +60,23 @@
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
-                        <tr *ngFor="let element of notSubscribedTablePage" class="TableRow align-middle">                            
-                            <td class="TableRecord">{{element.Name}}</td>
-                            <td class="TableRecord">{{element.Category}}</td>
-                            <td class="TableRecord">{{element.Ask}}</td>
-                            <td class="TableRecord">{{element.Bid}}</td>
-                            <td class="TableRecord">{{element.Leverage}}</td>
+                        <tr *ngFor="let _ of RecordsPerPage();let i = index" class="TableRow align-middle">                            
+                            <td class="TableRecord">{{notSubscribedElements[(currentPage[0]-1)*8+i].Name}}</td>
+                            <td class="TableRecord">{{notSubscribedElements[(currentPage[0]-1)*8+i].Category}}</td>
+                            <td class="TableRecord">{{notSubscribedElements[(currentPage[0]-1)*8+i].Ask}}</td>
+                            <td class="TableRecord">{{notSubscribedElements[(currentPage[0]-1)*8+i].Bid}}</td>
+                            <td class="TableRecord">{{notSubscribedElements[(currentPage[0]-1)*8+i].Leverage}}</td>
                             <td style="width: 15%"> 
-                                <button *ngIf="element.Name.length>1" type="button" class="btn btn-primary w-100" >subscribe</button>
+                                <button *ngIf="notSubscribedElements[(currentPage[0]-1)*8+i].Name.length>1" type="button" class="btn btn-primary w-100" >subscribe</button>
                             </td>
                         </tr>                            
                     </tbody>
                 </table>
                 <nav *ngIf="multipage[0]" aria-label="Page navigation example">
                     <ul class="pagination justify-content-center">
-                      <li class="page-item"><a class="page-link" (click)="ChangePage(true,currentPage[0]-1,true)">Previous</a></li>
-                      <li *ngFor="let page of paginationCheck[0];let i = index" class="page-item"><a class="page-link" [class.active]="page" (click)="ChangePage(true,paginationDisplay[0][i],false)">{{paginationDisplay[0][i]}}</a></li>
-                      <li class="page-item"><a class="page-link" (click)="ChangePage(true,currentPage[0]+1,true)">Next</a></li>
+                      <li class="page-item" style="width: 7%;"><a class="page-link text-center" (click)="ChangePage(true,currentPage[0]-1)">Previous</a></li>
+                      <li class="page-item"><a class="page-link active text-center">{{currentPage[0]}}</a></li>
+                      <li class="page-item" style="width: 7%;"><a class="page-link text-center" (click)="ChangePage(true,currentPage[0]+1)">Next</a></li>
                     </ul>
                   </nav>
             </div>
@@ -108,9 +108,9 @@
                 </table>
                 <nav *ngIf="multipage[1]" aria-label="Page navigation example">
                     <ul class="pagination justify-content-center">
-                      <li class="page-item"><a class="page-link" (click)="ChangePage(false,currentPage[1]-1,true)">Previous</a></li>
-                      <li *ngFor="let page of paginationCheck[1];let i = index" class="page-item"><a class="page-link" [class.active]="page" (click)="ChangePage(false,paginationDisplay[1][i],false)">{{paginationDisplay[1][i]}}</a></li>
-                      <li class="page-item"><a class="page-link" (click)="ChangePage(false,currentPage[1]+1,true)">Next</a></li>
+                      <li class="page-item" style="width: 7%;"><a class="page-link text-center" (click)="ChangePage(false,currentPage[1]-1)">Previous</a></li>
+                      <li class="page-item"><a class="page-link active text-center" >{{currentPage[1]}}</a></li>
+                      <li class="page-item" style="width: 7%;"><a class="page-link text-center" (click)="ChangePage(false,currentPage[1]+1)">Next</a></li>
                     </ul>
                 </nav>
             </div>
