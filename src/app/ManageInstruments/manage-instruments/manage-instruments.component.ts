@@ -81,6 +81,7 @@ export class ManageInstrumentsComponent implements OnInit {
     this.UpdateLayout(false);
     else
     this.UpdateLayout(true);
+  console.log(123);
   }
   UpdateLayout(UnsubscribedTable: boolean) {
     if(UnsubscribedTable===true)
