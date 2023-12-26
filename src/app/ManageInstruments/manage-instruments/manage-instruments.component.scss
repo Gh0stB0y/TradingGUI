@@ -16,14 +16,21 @@ html,body{
 }
 .MyTableSpace{
     height: 90%;
-    li:hover{
+    a:hover{
         cursor: pointer;
     }
-}
-.MyTable{
-    height: 90%;    
-    .TableRecord{
-        width: 17%;
-        height: 12.5%;
+
+    .MyTable{
+        height: 90%;    
+        .TableRecord{
+            width: 17%;
+            height: 12.5%;
+        }
+        .TableRecord2{
+            width: 15%;
+            height: 12.5%;
+        }
     }
+
 }
+
