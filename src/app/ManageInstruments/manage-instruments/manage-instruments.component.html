@@ -71,9 +71,9 @@
                             Category
                           </a>
                           <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" (click)="SetCategoryFilter('somethin')">Action</a></li>
-                            <li><a class="dropdown-item" (click)="SetCategoryFilter('somethin2')">Another action</a></li>
-                            <li><a class="dropdown-item" (click)="SetCategoryFilter('somethin3')">Something else here</a></li>
+                            <div *ngFor="let category of categories; let i = index">
+                                <li><a class="dropdown-item" (click)="SetCategoryFilter(category)">{{category}}</a></li>
+                            </div>                    
                           </ul>
                         </li>
                     </ul> 
@@ -83,9 +83,10 @@
                             Sort by
                           </a>
                           <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            
+                            <div *ngFor="let sortingCategory of sortingCategories; let i = index">
+                                <li><a class="dropdown-item" >{{sortingCategory}}</a></li>
+                            </div>                            
                           </ul>
                         </li>
                     </ul> 
@@ -95,9 +96,8 @@
                             Descending
                           </a>
                           <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            <li><a class="dropdown-item">Ascending</a></li>
+                            <li><a class="dropdown-item">Descending</a></li>
                           </ul>
                         </li>
                     </ul> 

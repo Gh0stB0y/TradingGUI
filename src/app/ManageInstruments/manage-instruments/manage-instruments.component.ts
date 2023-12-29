@@ -31,10 +31,10 @@ export class ManageInstrumentsComponent implements OnInit {
   
   notSubscribedUnfilteredElements:SubscribtionTablesItem[]=[];
   notSubscribedElements:SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" "}];
-  
-  searchText:string='';
   subscribedUnfilteredElements:SubscribtionTablesItem[]=[];
   subscribedElements: SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" "}];
+
+
   filter:FilterCriteria={
     Name:'',
     Category:'',
@@ -43,11 +43,15 @@ export class ManageInstrumentsComponent implements OnInit {
     MinLeverage:'',
     MaxLeverage:''
   }
-  
+  categories:string[]=[];
+  sortingCategories:string[]=[];
+
   constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService) 
   {
     this.UpdateTables();
     this.CreatePagination();
+    this.sortingCategories = Object.keys(this.notSubscribedElements);
+    console.log(this.sortingCategories);
   }
   
   ngOnInit(): void {
@@ -226,10 +230,13 @@ export class ManageInstrumentsComponent implements OnInit {
         let tableRecord:SubscribtionTablesItem = {name:item.name, category:item.category,ask:item.ask.toString(),bid:item.bid.toString(),leverage:item.leverage.toString()};
         this.notSubscribedUnfilteredElements.push(tableRecord);
       }
+
+      this.GetCategories(this.notSubscribedUnfilteredElements);
       this.onSearchInput(this.filter);
       this.UpdateTables();
     });
   }
+ 
   GetSubscribedElements():void{
 
   }
@@ -243,7 +250,9 @@ export class ManageInstrumentsComponent implements OnInit {
   }
 
 
-
+  GetCategories(objects:SubscribeMenuTableRecord[]) {
+    this.categories= Array.from(new Set(objects.map(obj => obj.category)));
+  }
   SetCategoryFilter(category:string){
     this.filter.Category=category;
     this.onSearchInput(this.filter);
