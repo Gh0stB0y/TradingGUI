@@ -14,12 +14,23 @@ html,body{
         }
     }
 }
+.FilteringMenu{
+    height: 10%;
+    .AskForm1{
+        width: 10%;
+    }
+    .AskForm2{
+        width: 13%;
+    }
+    .NameForm{
+        width: 17%;
+    }
+}
 .MyTableSpace{
-    height: 90%;
+    height: 80%;
     a:hover{
         cursor: pointer;
     }
-
     .MyTable{
         height: 90%;    
         .TableRecord{

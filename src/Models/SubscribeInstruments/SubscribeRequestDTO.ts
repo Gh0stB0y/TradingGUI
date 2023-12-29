@@ -1,4 +1,4 @@
-export interface SubscribeInstrumentDTO
+export interface SubscribeRequestDTO
 {
     Jwt:string;
     Instrument:string;

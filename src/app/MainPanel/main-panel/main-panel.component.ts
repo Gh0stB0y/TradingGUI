@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 import { error } from 'jquery';
 import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
 import { MyMessageDTO } from 'src/Models/MyMessageDTO';
-import { SubscribeInstrumentDTO } from 'src/Models/SubscribeInstrumentDTO';
-import { SubscribedItemUI } from 'src/Models/SubscribedItemUI';
+import { SubscribeRequestDTO } from 'src/Models/SubscribeInstruments/SubscribeRequestDTO';
+import { SubscribedItemDTO } from 'src/Models/SubscribeInstruments/SubscribedItemSimple';
 import { Logout as LogoutClear } from 'src/app/GlobalMethods/Logout';
 import { HttpServicesService } from 'src/app/Services/http-services.service';
 import { SignalRService } from 'src/app/Services/signalr.service';
@@ -23,7 +23,7 @@ export class MainPanelComponent implements OnInit {
 
   accountId:string = "";
   currentNavbar:number=1;
-  elements:SubscribedItemUI[]=[];
+  elements:SubscribedItemDTO[]=[];
   // elements = ['OIL.WTI', 'EURUSD', 'EURPLN', 'USDPLN', 'WIG20'];
   initialWaiting: boolean =true;
   intervals:string [] =['M5', 'M15', 'H1', 'H4', 'D1', 'W1'];
@@ -78,7 +78,6 @@ export class MainPanelComponent implements OnInit {
     }
 
   }
-  
   ChooseNavbar(navbarId:number){
     for (let i = 0; i < this.navbarCheck.length; i++) 
     {
@@ -97,22 +96,7 @@ export class MainPanelComponent implements OnInit {
     LogoutClear(this.router);
     this.router.navigate(['']);
   }
-  ManageSubscribtion(subscribe:boolean,data:string):void
-  {
-    const jwt = localStorage.getItem("token");
-    if(jwt)
-    {
-      let instrument:SubscribeInstrumentDTO=
-      {
-        Jwt: jwt.toString(),
-        Instrument:data
-      }
-       if(subscribe)
-         this.signalRService.SubscribeInstrument(instrument);
-       else
-         this.signalRService.UnsubscribeInstrument(instrument);
-    }    
-  }
+  
   //Listeners
   ErrorMessageListener():void{
     this.signalRService.MessageListener().subscribe((error)=>
@@ -130,8 +114,6 @@ export class MainPanelComponent implements OnInit {
   TokenUpdateListener():void{
     this.signalRService.UpdateTokenListener().subscribe((data) => 
     {
-      console.log(data.sessionId);
-      console.log(data.token);
       localStorage.setItem("sessionId",data.sessionId);
       localStorage.setItem("token", data.token);
     });

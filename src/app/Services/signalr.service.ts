@@ -4,7 +4,9 @@ import { Callbacks, data, error } from 'jquery';
 import { Observable, Subject } from 'rxjs';
 import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
 import { MyMessageDTO } from 'src/Models/MyMessageDTO';
-import { SubscribeInstrumentDTO } from 'src/Models/SubscribeInstrumentDTO';
+import { SubscribeRequestDTO } from 'src/Models/SubscribeInstruments/SubscribeRequestDTO';
+import { SubscribtionTablesDTO } from 'src/Models/SubscribeInstruments/SubscribtionTablesDTO';
+import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +17,7 @@ export class SignalRService {
   private TokenUpdateSubject: Subject<LoginResponseDTO> = new Subject<LoginResponseDTO>();
   private MessageSubject: Subject<MyMessageDTO> = new Subject<MyMessageDTO>();
   private LogoutSubject: Subject<any> = new Subject<any>();
+  private UnsubscribedInstrumentsSubject: Subject<SubscribtionTablesDTO[]> = new Subject<SubscribtionTablesDTO[]>();
   constructor() 
   {
     // Set up the connection
@@ -36,19 +39,25 @@ export class SignalRService {
       this.hubConnection.start()
         .then(() => {
           console.log('Connection started');
+          this.hubConnection.on('TokenUpdate', (data: LoginResponseDTO) => {
+            this.TokenUpdateSubject.next(data);
+          });
+          this.hubConnection.on("Msg",(error:MyMessageDTO)=>{
+            this.MessageSubject.next(error);
+          });
+          this.hubConnection.on("Logout",()=>{
+            this.LogoutSubject.next("");
+          });
+          this.hubConnection.on("UnsubscribedInstruments",(data:SubscribtionTablesDTO[])=>{
+            this.UnsubscribedInstrumentsSubject.next(data);
+          });
+
+          const data:LoginResponseDTO = {sessionId:SessionId, token:Token}
+          this.GetUnsubscribedInstruments(data);
         })
         .catch(err => console.error('Error while starting connection:', err));
 
-        this.hubConnection.on('TokenUpdate', (data: LoginResponseDTO) => {
-          this.TokenUpdateSubject.next(data);
-        });
-        this.hubConnection.on("Msg",(error:MyMessageDTO)=>{
-          this.MessageSubject.next(error);
-        })
-        this.hubConnection.on("Logout",()=>{
-          this.LogoutSubject.next("");
-        })
-
+        
     }    
   }
   stopConnection()
@@ -60,11 +69,14 @@ export class SignalRService {
     this.hubConnection.invoke("Logout");
   }
   // Method to send a message to the server
-  SubscribeInstrument(instrument: SubscribeInstrumentDTO) {
+  SubscribeInstrument(instrument: SubscribeRequestDTO) {
     this.hubConnection.invoke('SubscribeInstrument', instrument);
   }
-  UnsubscribeInstrument(instrument: SubscribeInstrumentDTO) {
+  UnsubscribeInstrument(instrument: SubscribeRequestDTO) {
     this.hubConnection.invoke('UnsubscribeInstrument', instrument);
+  }
+  GetUnsubscribedInstruments(credentials: LoginResponseDTO) {
+    this.hubConnection.invoke('GetUnsubscribedInstruments', credentials);
   }
   //Listeners
   LogoutListener():Observable<any>{
@@ -76,6 +88,8 @@ export class SignalRService {
   UpdateTokenListener(): Observable<LoginResponseDTO> {
     return this.TokenUpdateSubject.asObservable();
   }
-  
+  UnsubscribedInstrumentsListener(): Observable<SubscribtionTablesDTO[]> {
+    return this.UnsubscribedInstrumentsSubject.asObservable();
+  }
   
 }

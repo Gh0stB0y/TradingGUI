@@ -15,7 +15,6 @@ export class HttpServicesService {
 
 
   LoginRequest(data: LoginCredsDTO): Observable<LoginResponseDTO> {
-    console.log(data);
     return this.http.post<LoginResponseDTO>(`${this.apiUrl}/Trading/Login`, data);
   }
   CheckSession(data:LoginResponseDTO): Observable<LoginResponseDTO>{
