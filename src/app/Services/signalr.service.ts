@@ -18,6 +18,8 @@ export class SignalRService {
   private MessageSubject: Subject<MyMessageDTO> = new Subject<MyMessageDTO>();
   private LogoutSubject: Subject<any> = new Subject<any>();
   private UnsubscribedInstrumentsSubject: Subject<SubscribtionTablesDTO[]> = new Subject<SubscribtionTablesDTO[]>();
+  private NewSubscribtionSubject: Subject<string> = new Subject<string>();
+  private RemoveSubscribtionSubject: Subject<string> = new Subject<string>();
   constructor() 
   {
     // Set up the connection
@@ -50,6 +52,12 @@ export class SignalRService {
           });
           this.hubConnection.on("UnsubscribedInstruments",(data:SubscribtionTablesDTO[])=>{
             this.UnsubscribedInstrumentsSubject.next(data);
+          });
+          this.hubConnection.on("NewSubscribtion",(instrument:string)=>{
+            this.NewSubscribtionSubject.next(instrument);
+          });
+          this.hubConnection.on("RemoveSubscribtion",(instrument:string)=>{
+            this.RemoveSubscribtionSubject.next(instrument);
           });
 
           const data:LoginResponseDTO = {sessionId:SessionId, token:Token}
@@ -90,6 +98,12 @@ export class SignalRService {
   }
   UnsubscribedInstrumentsListener(): Observable<SubscribtionTablesDTO[]> {
     return this.UnsubscribedInstrumentsSubject.asObservable();
+  }
+  NewSubscribtionListener(): Observable<string> {
+    return this.NewSubscribtionSubject.asObservable();
+  }
+  RemoveSubscribtionListener(): Observable<string>{
+    return this.RemoveSubscribtionSubject.asObservable();
   }
   
 }

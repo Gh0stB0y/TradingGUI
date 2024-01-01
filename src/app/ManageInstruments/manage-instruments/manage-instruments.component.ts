@@ -16,6 +16,7 @@ import { FilterCriteria } from 'src/Models/FilterCriteria';
 })
 export class ManageInstrumentsComponent implements OnInit {
 
+
   currentPage:number[] = [1,1];
   multipage: boolean[] = [false,false];
   paginationCheck: boolean[][] = [[],[]];
@@ -27,12 +28,13 @@ export class ManageInstrumentsComponent implements OnInit {
   currentNavbar: number = 0;
   navbarCheck: boolean[]=[true,false];
 
-  initialWaiting: boolean =false;
-  
+  initialWaiting: boolean = false;
+  responseWaiting: boolean[] = [];
+
   notSubscribedUnfilteredElements:SubscribtionTablesItem[]=[];
-  notSubscribedElements:SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" "}];
+  notSubscribedElements:SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false}];
   subscribedUnfilteredElements:SubscribtionTablesItem[]=[];
-  subscribedElements: SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" "}];
+  subscribedElements: SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false}];
 
 
   filter:FilterCriteria={
@@ -44,22 +46,58 @@ export class ManageInstrumentsComponent implements OnInit {
     MaxLeverage:''
   }
   categories:string[]=[];
-  sortingCategories:string[]=[];
+  sortingCategories:string[]=["Instrument","Category","Ask","Bid","Leverage"];
+  ascendingSort:boolean=true;
+  currentSort:string = "Sort";
 
   constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService) 
   {
     this.UpdateTables();
     this.CreatePagination();
-    this.sortingCategories = Object.keys(this.notSubscribedElements);
-    console.log(this.sortingCategories);
   }
   
   ngOnInit(): void {
 
-    this.GetUnsubscribedInstruments();
-
+    this.UnsubscribedInstrumentsListener();
   }
 
+  ChangePage(UnsubscribedTable:boolean,page:number){
+
+    if(UnsubscribedTable===true)
+    {
+      if(page>0&&page<this.notSubscribedElements.length/this.recordPerPage+1)                     
+        this.currentPage[0]=page;              
+    }
+    else
+    {
+      if(page>0&&page<this.subscribedElements.length/this.recordPerPage+1)
+        this.currentPage[1]=page;
+    }    
+  }
+  ChooseNavbar(navbarId:number){
+    for (let i = 0; i < this.navbarCheck.length; i++) 
+    {
+      this.navbarCheck[i]=false;
+      if(navbarId>=0&&navbarId<this.navbarCheck.length){
+        this.navbarCheck[navbarId]=true;
+      }
+    }
+    this.currentNavbar=navbarId;
+  }
+
+  /////////////VISUAL METHODS///////////////////
+  AddBlankRecords()
+  {
+    while(this.notSubscribedElements.length%this.recordPerPage!==0)
+    {
+      this.notSubscribedElements.push({name:"",category:"",ask:"",bid:"",leverage:"",waitingResponse:false});
+    }
+    ///////////////////////////////////////////////////////
+    while(this.subscribedElements.length%this.recordPerPage!==0)
+    {
+      this.subscribedElements.push({name:"",category:"",ask:"",bid:"",leverage:"",waitingResponse:false});
+    }
+  }
   CreatePagination() {
     this.paginationCheck[0]=[];
     this.paginationDisplay[0]=[];
@@ -107,45 +145,6 @@ export class ManageInstrumentsComponent implements OnInit {
   RecordsPerPage(): any[] {
     return new Array(this.recordPerPage);
   }
-  
-
-  ChangePage(UnsubscribedTable:boolean,page:number){
-
-    if(UnsubscribedTable===true)
-    {
-      if(page>0&&page<this.notSubscribedElements.length/this.recordPerPage+1)                     
-        this.currentPage[0]=page;              
-    }
-    else
-    {
-      if(page>0&&page<this.subscribedElements.length/this.recordPerPage+1)
-        this.currentPage[1]=page;
-    }    
-  }
-  ChooseNavbar(navbarId:number){
-    for (let i = 0; i < this.navbarCheck.length; i++) 
-    {
-      this.navbarCheck[i]=false;
-      if(navbarId>=0&&navbarId<this.navbarCheck.length){
-        this.navbarCheck[navbarId]=true;
-      }
-    }
-    this.currentNavbar=navbarId;
-  }
-
-
-  AddBlankRecords()
-  {
-    while(this.notSubscribedElements.length%this.recordPerPage!==0)
-    {
-      this.notSubscribedElements.push({name:"",category:"",ask:"",bid:"",leverage:""});
-    }
-    ///////////////////////////////////////////////////////
-    while(this.subscribedElements.length%this.recordPerPage!==0)
-    {
-      this.subscribedElements.push({name:"",category:"",ask:"",bid:"",leverage:""});
-    }
-  }
   UpdateBlankPage(){
     let count:number=0;
     for(let i=this.subscribedElements.length-this.recordPerPage;i<this.subscribedElements.length;i++)
@@ -192,7 +191,7 @@ export class ManageInstrumentsComponent implements OnInit {
     this.UpdateCurrentPage();
     this.UpdateMultiPage();
   }
-
+  /////////////////////////////////////////////
   DeleteRecord(i:number) 
   {    
     this.subscribedElements.splice((this.currentPage[1]-1)*8+i, 1);    
@@ -206,28 +205,34 @@ export class ManageInstrumentsComponent implements OnInit {
       {
         if(this.subscribedElements[i].name==="")
         {
-          this.subscribedElements[i]={name:"Another element",category:"Dummy",ask:"0",bid:"0",leverage:"0:0"};
+          this.subscribedElements[i]={name:"Another element",category:"Dummy",ask:"0",bid:"0",leverage:"0:0",waitingResponse:false};
           break;
         }
       }
     }      
     else
     {
-      this.subscribedElements.push({name:"Another element",category:"Dummy",ask:"0",bid:"0",leverage:"0:0"});
+      this.subscribedElements.push({name:"Another element",category:"Dummy",ask:"0",bid:"0",leverage:"0:0",waitingResponse:false});
     }
     this.UpdateTables();   
   }
+  ////////////////////////////////////////////
+
+  ///////////////LISTENERS////////////////////
+  NewSubscribtionListener():void{
+    this.signalRService.NewSubscribtionListener().subscribe((instrument:string)=>{
 
 
+    });
+  }
+  SubscribedElementsListener():void{
 
-
-  GetUnsubscribedInstruments():void{
+  }
+  UnsubscribedInstrumentsListener():void{
     this.signalRService.UnsubscribedInstrumentsListener().subscribe((data)=>{
-      console.log(data);
-      console.log(data[4]);
       this.notSubscribedUnfilteredElements=[];
       for (let item of data){
-        let tableRecord:SubscribtionTablesItem = {name:item.name, category:item.category,ask:item.ask.toString(),bid:item.bid.toString(),leverage:item.leverage.toString()};
+        let tableRecord:SubscribtionTablesItem = {name:item.name, category:item.category,ask:item.ask.toString(),bid:item.bid.toString(),leverage:item.leverage.toString(),waitingResponse:false};
         this.notSubscribedUnfilteredElements.push(tableRecord);
       }
 
@@ -236,28 +241,29 @@ export class ManageInstrumentsComponent implements OnInit {
       this.UpdateTables();
     });
   }
- 
-  GetSubscribedElements():void{
-
-  }
-  SubscribeItem():void{
+  ////////////////////////////////////////////
+  SubscribeItem(instrumentName:string):void{
     let token = localStorage.getItem("token");
     if(token)
     {
-      let instrument:SubscribeRequestDTO={Jwt:token,Instrument:"USDPLN"};
+      let instrument:SubscribeRequestDTO={Jwt:token,Instrument:instrumentName};
       this.signalRService.SubscribeInstrument(instrument);
     }
   }
+  UnsubscribeItem():void{
 
+  }
+  /////////////////////////////////////////////
 
-  GetCategories(objects:SubscribeMenuTableRecord[]) {
+  /////FILTERING AND SORTING///////////
+  GetCategories(objects:SubscribeMenuTableRecord[]):void {
     this.categories= Array.from(new Set(objects.map(obj => obj.category)));
   }
-  SetCategoryFilter(category:string){
+  SetCategoryFilter(category:string):void{
     this.filter.Category=category;
     this.onSearchInput(this.filter);
   }
-  onSearchInput(filter:FilterCriteria) {
+  onSearchInput(filter:FilterCriteria):void {
     if(filter != null)
     {
       this.notSubscribedElements = this.notSubscribedUnfilteredElements;
@@ -289,4 +295,110 @@ export class ManageInstrumentsComponent implements OnInit {
       this.UpdateTables();
     }
   }
+  SortItems(category: string,ascending:boolean):void {
+    this.notSubscribedElements = this.notSubscribedElements.filter(item => item.name.trim() !== '');
+    switch(category){
+      case this.sortingCategories[0]:
+        if(ascending===true)
+        {
+          this.notSubscribedElements.sort((a, b) => {
+            const nameComparison = a.name.localeCompare(b.name);
+            const categoryComparison = nameComparison === 0 ? a.category.localeCompare(b.category) : nameComparison;
+            return categoryComparison === 0 ? a.ask.localeCompare(b.ask) : categoryComparison;
+          });
+        }
+        else
+        {
+          this.notSubscribedElements.sort((a, b) => {
+            const nameComparison = b.name.localeCompare(a.name);
+            const categoryComparison = nameComparison === 0 ? b.category.localeCompare(a.category) : nameComparison;
+            return categoryComparison === 0 ? b.ask.localeCompare(a.ask) : categoryComparison;
+          });
+        }
+      break;
+
+      case this.sortingCategories[1]:
+        if(ascending===true)
+        {
+          this.notSubscribedElements.sort((a, b) => {          
+            const categoryComparison = a.category.localeCompare(b.category);
+            const nameComparison = categoryComparison === 0 ? a.name.localeCompare(b.name) : categoryComparison;
+            return nameComparison === 0 ? a.ask.localeCompare(b.ask) : nameComparison;
+          });
+        }
+        else
+        {
+          this.notSubscribedElements.sort((a, b) => {          
+            const categoryComparison = b.category.localeCompare(a.category);
+            const nameComparison = categoryComparison === 0 ? b.name.localeCompare(a.name) : categoryComparison;
+            return nameComparison === 0 ? b.ask.localeCompare(a.ask) : nameComparison;
+          });
+        }
+      break;
+
+      case this.sortingCategories[2]:
+        if(ascending===true)
+        {
+          this.notSubscribedElements.sort((a, b) => {          
+            const askComparison = a.ask.localeCompare(b.ask);
+            const nameComparison = askComparison === 0 ? a.name.localeCompare(b.name) : askComparison;
+            return nameComparison === 0 ? a.category.localeCompare(b.category) : nameComparison;
+          });
+        }
+        else
+        {
+          this.notSubscribedElements.sort((a, b) => {          
+            const askComparison = b.ask.localeCompare(a.ask);
+            const nameComparison = askComparison === 0 ? b.name.localeCompare(a.name) : askComparison;
+            return nameComparison === 0 ? b.category.localeCompare(a.category) : nameComparison;
+          });
+        }
+      break;
+
+      case this.sortingCategories[3]:
+        if(ascending===true)
+        {
+          this.notSubscribedElements.sort((a, b) => {          
+            const askComparison = a.bid.localeCompare(b.bid);
+            const nameComparison = askComparison === 0 ? a.name.localeCompare(b.name) : askComparison;
+            return nameComparison === 0 ? a.category.localeCompare(b.category) : nameComparison;
+          });
+        }
+        else
+        {
+          this.notSubscribedElements.sort((a, b) => {          
+            const askComparison = b.bid.localeCompare(a.bid);
+            const nameComparison = askComparison === 0 ? b.name.localeCompare(a.name) : askComparison;
+            return nameComparison === 0 ? b.category.localeCompare(a.category) : nameComparison;
+          });
+        }
+      break;
+        
+      case this.sortingCategories[4]:
+        if(ascending===true)
+        {
+          this.notSubscribedElements.sort((a, b) => {          
+            const askComparison = a.leverage.localeCompare(b.leverage);
+            const nameComparison = askComparison === 0 ? a.name.localeCompare(b.name) : askComparison;
+            return nameComparison === 0 ? a.category.localeCompare(b.category) : nameComparison;
+          });
+        }
+        else
+        {
+          this.notSubscribedElements.sort((a, b) => {          
+            const askComparison = b.leverage.localeCompare(a.leverage);
+            const nameComparison = askComparison === 0 ? b.name.localeCompare(a.name) : askComparison;
+            return nameComparison === 0 ? b.category.localeCompare(a.category) : nameComparison;
+          });
+        }
+      break;
+    
+      default:
+        console.error("error");    
+      break;
+    }
+
+    this.AddBlankRecords();
+  }
+  ////////////////////////////////////
 }

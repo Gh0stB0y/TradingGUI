@@ -5,4 +5,5 @@ export class SubscribtionTablesItem
     ask:string;
     bid:string;
     leverage:string;
+    waitingResponse:boolean;
 }

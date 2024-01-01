@@ -80,24 +80,24 @@
                     <ul class="navbar-nav px-2 h-75">                      
                         <li class="nav-item dropdown">
                           <a class="nav-link bg-secondary dropdown-toggle h-100 d-flex align-items-center border rounded-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Sort by
+                            {{currentSort}}
                           </a>
                           <ul class="dropdown-menu">
                             
                             <div *ngFor="let sortingCategory of sortingCategories; let i = index">
-                                <li><a class="dropdown-item" >{{sortingCategory}}</a></li>
+                                <li><a class="dropdown-item d-flex ms-auto" (click)="currentSort=sortingCategory; SortItems(currentSort,ascendingSort);">{{sortingCategory}}</a></li>
                             </div>                            
                           </ul>
                         </li>
                     </ul> 
-                    <ul class="navbar-nav px-2 h-75">                      
-                        <li class="nav-item dropdown ">
-                          <a class="nav-link bg-secondary dropdown-toggle h-100 d-flex align-items-center border rounded-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Descending
+                    <ul class="navbar-nav px-2 h-75" style="width: 10%;">                      
+                        <li class="nav-item dropdown w-100" >
+                          <a class="nav-link bg-secondary dropdown-toggle h-100 d-flex align-items-center border rounded-2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Ascending
                           </a>
                           <ul class="dropdown-menu">
-                            <li><a class="dropdown-item">Ascending</a></li>
-                            <li><a class="dropdown-item">Descending</a></li>
+                            <li><a class="dropdown-item" (click)="ascendingSort=true;SortItems(currentSort,ascendingSort);">Ascending</a></li>
+                            <li><a class="dropdown-item" (click)="ascendingSort=false;SortItems(currentSort,ascendingSort);">Descending</a></li>
                           </ul>
                         </li>
                     </ul> 
@@ -125,7 +125,9 @@
                             <td class="TableRecord">{{notSubscribedElements[(currentPage[0]-1)*8+i].bid}}</td>
                             <td class="TableRecord">{{notSubscribedElements[(currentPage[0]-1)*8+i].leverage}}</td>
                             <td style="width: 15%"> 
-                                <button *ngIf="notSubscribedElements[(currentPage[0]-1)*8+i].name.length>1" type="button" class="btn btn-primary w-100" (click)="SubscribeItem()">subscribe</button>
+                                <button *ngIf="notSubscribedElements[(currentPage[0]-1)*8+i].name.length>1" type="button" class="btn btn-primary w-100" [class.disabled]="notSubscribedElements[(currentPage[0]-1)*8+i].waitingResponse" (click)="SubscribeItem(notSubscribedElements[(currentPage[0]-1)*8+i].name);notSubscribedElements[(currentPage[0]-1)*8+i].waitingResponse=true;">
+                                    <span *ngIf="notSubscribedElements[(currentPage[0]-1)*8+i].waitingResponse" class="spinner-border spinner-border-sm" aria-hidden="true"></span>subscribe
+                                </button>
                             </td>
                         </tr>                            
                     </tbody>
