@@ -1,5 +1,5 @@
 export interface SubscribedItemDTO
 {
-    name:string,
+    name:string
     Intervals:string[]
 }

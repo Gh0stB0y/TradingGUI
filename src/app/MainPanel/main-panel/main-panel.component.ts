@@ -24,14 +24,11 @@ export class MainPanelComponent implements OnInit {
   accountId:string = "";
   currentNavbar:number=1;
   elements:SubscribedItemDTO[]=[];
-  // elements = ['OIL.WTI', 'EURUSD', 'EURPLN', 'USDPLN', 'WIG20'];
   initialWaiting: boolean =true;
-  intervals:string [] =['M5', 'M15', 'H1', 'H4', 'D1', 'W1'];
+  intervals:string [] =['M1', 'M5', 'M15','M30', 'H1', 'H4', 'D1', 'W1'];
   messages:MyMessageDTO[] = [];
   navbarCheck:boolean[]=[false,false,false,false];
   tradeSignals:string [] =['trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1','trade1'];
-  
-
   
   ngOnInit(): void {    
     this.ChooseNavbar(this.currentNavbar);
@@ -65,6 +62,8 @@ export class MainPanelComponent implements OnInit {
            this.TokenUpdateListener();
            this.ErrorMessageListener();
            this.LogoutListener();
+           this.NewSubscribtionListener();
+           this.RemoveSubscribtionListener();
         },
         error:(err) =>{
           console.error(err.error);
@@ -96,6 +95,14 @@ export class MainPanelComponent implements OnInit {
     LogoutClear(this.router);
     this.router.navigate(['']);
   }
+  UnsubscribeItem(instrumentName:string):void{
+    let token = localStorage.getItem("token");
+    if(token)
+    {
+      let instrument:SubscribeRequestDTO={Jwt:token,Instrument:instrumentName};
+      this.signalRService.UnsubscribeInstrument(instrument);
+    }
+  }
   
   //Listeners
   ErrorMessageListener():void{
@@ -116,6 +123,17 @@ export class MainPanelComponent implements OnInit {
     {
       localStorage.setItem("sessionId",data.sessionId);
       localStorage.setItem("token", data.token);
+    });
+  }
+  NewSubscribtionListener():void{
+    this.signalRService.NewSubscribtionListener().subscribe((instrument)=>{
+      this.elements.push({name:instrument.name,Intervals:this.intervals});
+   
+    });
+  }
+  RemoveSubscribtionListener():void{
+    this.signalRService.RemoveSubscribtionListener().subscribe((instrument)=>{
+      this.elements = this.elements.filter(item=>item.name!==instrument);
     });
   }
   //

@@ -7,6 +7,8 @@ import { HttpServicesService } from 'src/app/Services/http-services.service';
 import { SignalRService } from 'src/app/Services/signalr.service';
 import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
 import { FilterCriteria } from 'src/Models/FilterCriteria';
+import { SubscribtionTablesDTO } from 'src/Models/SubscribeInstruments/SubscribtionTablesDTO';
+import { data } from 'jquery';
 
 @Component({
   selector: 'app-manage-instruments',
@@ -49,17 +51,23 @@ export class ManageInstrumentsComponent implements OnInit {
   sortingCategories:string[]=["Instrument","Category","Ask","Bid","Leverage"];
   ascendingSort:boolean=true;
   currentSort:string = "Sort";
+  currentFilter:string = "Filter";
+  currentSortOrder:string = "Ascending";
 
   constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService) 
   {
     this.UpdateTables();
     this.CreatePagination();
+    
   }
   
   ngOnInit(): void {
-
     this.UnsubscribedInstrumentsListener();
+    this.NewSubscribtionListener();
+    this.RemoveSubscribtionListener();
+    this.GetUnsubscribedItems();
   }
+  
 
   ChangePage(UnsubscribedTable:boolean,page:number){
 
@@ -90,12 +98,12 @@ export class ManageInstrumentsComponent implements OnInit {
   {
     while(this.notSubscribedElements.length%this.recordPerPage!==0)
     {
-      this.notSubscribedElements.push({name:"",category:"",ask:"",bid:"",leverage:"",waitingResponse:false});
+      this.notSubscribedElements.push({name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false});
     }
     ///////////////////////////////////////////////////////
     while(this.subscribedElements.length%this.recordPerPage!==0)
     {
-      this.subscribedElements.push({name:"",category:"",ask:"",bid:"",leverage:"",waitingResponse:false});
+      this.subscribedElements.push({name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false});
     }
   }
   CreatePagination() {
@@ -145,6 +153,13 @@ export class ManageInstrumentsComponent implements OnInit {
   RecordsPerPage(): any[] {
     return new Array(this.recordPerPage);
   }
+  SyncTable(){
+    let subscribedItems = this.subscribedElements;
+    subscribedItems = this.subscribedElements.filter(item => item.name.trim() !== '');
+    for(let i=0;i<subscribedItems.length;i++){
+      this.notSubscribedElements=this.notSubscribedElements.filter(item=>item.name!==subscribedItems[i].name);
+    }
+  }
   UpdateBlankPage(){
     let count:number=0;
     for(let i=this.subscribedElements.length-this.recordPerPage;i<this.subscribedElements.length;i++)
@@ -186,33 +201,37 @@ export class ManageInstrumentsComponent implements OnInit {
       this.multipage[0]=false;
   }
   UpdateTables() {
+    this.SyncTable();
     this.AddBlankRecords();
     this.UpdateBlankPage();
     this.UpdateCurrentPage();
     this.UpdateMultiPage();
   }
   /////////////////////////////////////////////
-  DeleteRecord(i:number) 
+  DeleteRecord(instrument:string) 
   {    
-    this.subscribedElements.splice((this.currentPage[1]-1)*8+i, 1);    
-    this.UpdateTables();
+    this.subscribedElements=this.subscribedElements.filter(item=>item.name!==instrument); 
+    this.GetCategories(this.notSubscribedUnfilteredElements);
+      this.onSearchInput(this.filter);           
+      this.UpdateTables();
+      this.initialWaiting=false;
   }
-  AddRecord(i:number) 
+  AddRecord(instrument:SubscribtionTablesDTO) 
   {
-    if(this.subscribedElements[this.subscribedElements.length-1].name==="")
+    if(this.subscribedElements[this.subscribedElements.length-1].name===" ")
     {
       for(let i=this.subscribedElements.length-this.recordPerPage;i<this.subscribedElements.length;i++)
       {
-        if(this.subscribedElements[i].name==="")
+        if(this.subscribedElements[i].name===" ")
         {
-          this.subscribedElements[i]={name:"Another element",category:"Dummy",ask:"0",bid:"0",leverage:"0:0",waitingResponse:false};
+          this.subscribedElements[i]={name:instrument.name,category:instrument.category,ask:instrument.ask.toString(),bid:instrument.bid.toString(),leverage:instrument.leverage.toString(),waitingResponse:false};
           break;
         }
       }
     }      
     else
     {
-      this.subscribedElements.push({name:"Another element",category:"Dummy",ask:"0",bid:"0",leverage:"0:0",waitingResponse:false});
+      this.subscribedElements.push({name:instrument.name,category:instrument.category,ask:instrument.ask.toString(),bid:instrument.bid.toString(),leverage:instrument.leverage.toString(),waitingResponse:false});
     }
     this.UpdateTables();   
   }
@@ -220,13 +239,15 @@ export class ManageInstrumentsComponent implements OnInit {
 
   ///////////////LISTENERS////////////////////
   NewSubscribtionListener():void{
-    this.signalRService.NewSubscribtionListener().subscribe((instrument:string)=>{
-
-
+    this.signalRService.NewSubscribtionListener().subscribe((instrument)=>{
+      this.AddRecord(instrument);
+      //let record:SubscribtionTablesItem ={name:instrument.name,category:instrument.category,ask:instrument.ask.toString(),bid:instrument.bid.toString(),leverage:instrument.leverage.toString(),waitingResponse:false};
     });
   }
-  SubscribedElementsListener():void{
-
+  RemoveSubscribtionListener():void{
+    this.signalRService.RemoveSubscribtionListener().subscribe((instrument)=>{
+      this.DeleteRecord(instrument);
+    });
   }
   UnsubscribedInstrumentsListener():void{
     this.signalRService.UnsubscribedInstrumentsListener().subscribe((data)=>{
@@ -234,15 +255,26 @@ export class ManageInstrumentsComponent implements OnInit {
       for (let item of data){
         let tableRecord:SubscribtionTablesItem = {name:item.name, category:item.category,ask:item.ask.toString(),bid:item.bid.toString(),leverage:item.leverage.toString(),waitingResponse:false};
         this.notSubscribedUnfilteredElements.push(tableRecord);
-      }
-
+      }          
       this.GetCategories(this.notSubscribedUnfilteredElements);
-      this.onSearchInput(this.filter);
+      this.onSearchInput(this.filter);           
       this.UpdateTables();
+      this.initialWaiting=false;
     });
   }
+  
   ////////////////////////////////////////////
+  GetUnsubscribedItems():void {
+    let token = localStorage.getItem("token");
+    let sessionID = localStorage.getItem("sessionId");
+    if(token&&sessionID)
+    {
+      let obj:LoginResponseDTO = {token:token,sessionId:sessionID};
+      this.signalRService.GetUnsubscribedInstruments(obj);
+    }
+  }
   SubscribeItem(instrumentName:string):void{
+    
     let token = localStorage.getItem("token");
     if(token)
     {
@@ -250,8 +282,13 @@ export class ManageInstrumentsComponent implements OnInit {
       this.signalRService.SubscribeInstrument(instrument);
     }
   }
-  UnsubscribeItem():void{
-
+  UnsubscribeItem(instrumentName:string):void{
+    let token = localStorage.getItem("token");
+    if(token)
+    {
+      let instrument:SubscribeRequestDTO={Jwt:token,Instrument:instrumentName};
+      this.signalRService.UnsubscribeInstrument(instrument);
+    }
   }
   /////////////////////////////////////////////
 
@@ -261,6 +298,7 @@ export class ManageInstrumentsComponent implements OnInit {
   }
   SetCategoryFilter(category:string):void{
     this.filter.Category=category;
+    this.currentFilter=category;
     this.onSearchInput(this.filter);
   }
   onSearchInput(filter:FilterCriteria):void {
@@ -297,6 +335,15 @@ export class ManageInstrumentsComponent implements OnInit {
   }
   SortItems(category: string,ascending:boolean):void {
     this.notSubscribedElements = this.notSubscribedElements.filter(item => item.name.trim() !== '');
+    this.currentSort=category;
+    if(ascending===true)
+    {
+      this.currentSortOrder="Ascending";
+    }
+    else
+    {
+      this.currentSortOrder="Descending";
+    }
     switch(category){
       case this.sortingCategories[0]:
         if(ascending===true)

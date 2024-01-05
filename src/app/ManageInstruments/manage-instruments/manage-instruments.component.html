@@ -68,7 +68,7 @@
                     <ul class="navbar-nav px-2 h-75 me-auto">                      
                         <li class="nav-item dropdown">
                           <a class="nav-link bg-secondary dropdown-toggle h-100 d-flex align-items-center border rounded-2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                            Category
+                            {{currentFilter}}
                           </a>
                           <ul class="dropdown-menu">
                             <div *ngFor="let category of categories; let i = index">
@@ -90,10 +90,10 @@
                           </ul>
                         </li>
                     </ul> 
-                    <ul class="navbar-nav px-2 h-75" style="width: 10%;">                      
+                    <ul class="navbar-nav px-2 h-75" >                      
                         <li class="nav-item dropdown w-100" >
                           <a class="nav-link bg-secondary dropdown-toggle h-100 d-flex align-items-center border rounded-2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Ascending
+                            {{currentSortOrder}}
                           </a>
                           <ul class="dropdown-menu">
                             <li><a class="dropdown-item" (click)="ascendingSort=true;SortItems(currentSort,ascendingSort);">Ascending</a></li>
@@ -125,7 +125,7 @@
                             <td class="TableRecord">{{notSubscribedElements[(currentPage[0]-1)*8+i].bid}}</td>
                             <td class="TableRecord">{{notSubscribedElements[(currentPage[0]-1)*8+i].leverage}}</td>
                             <td style="width: 15%"> 
-                                <button *ngIf="notSubscribedElements[(currentPage[0]-1)*8+i].name.length>1" type="button" class="btn btn-primary w-100" [class.disabled]="notSubscribedElements[(currentPage[0]-1)*8+i].waitingResponse" (click)="SubscribeItem(notSubscribedElements[(currentPage[0]-1)*8+i].name);notSubscribedElements[(currentPage[0]-1)*8+i].waitingResponse=true;">
+                                <button *ngIf="notSubscribedElements[(currentPage[0]-1)*8+i].name.length>1" type="button" class="btn btn-primary w-100" [class.disabled]="notSubscribedElements[(currentPage[0]-1)*8+i].waitingResponse" (click)="SubscribeItem(notSubscribedElements[(currentPage[0]-1)*8+i].name)">
                                     <span *ngIf="notSubscribedElements[(currentPage[0]-1)*8+i].waitingResponse" class="spinner-border spinner-border-sm" aria-hidden="true"></span>subscribe
                                 </button>
                             </td>
@@ -160,8 +160,10 @@
                             <td class="TableRecord2">{{subscribedElements[(currentPage[1]-1)*8+i].bid}}</td>
                             <td class="TableRecord2">{{subscribedElements[(currentPage[1]-1)*8+i].leverage}}</td>
                             <td style="width: 25%"> 
-                                <button *ngIf="subscribedElements[(currentPage[1]-1)*8+i].name.length>1" type="button" class="btn btn-primary" style="width: 45%; margin-right: 5%;" (click)="AddRecord(i)">Open chart</button>
-                                <button *ngIf="subscribedElements[(currentPage[1]-1)*8+i].name.length>1" type="button" class="btn btn-danger" style="width: 45%; margin-left: 5%;" (click)="DeleteRecord(i)">Unsubscribe</button>
+                                <button *ngIf="subscribedElements[(currentPage[1]-1)*8+i].name.length>1" type="button" class="btn btn-primary" style="width: 45%; margin-right: 5%;">Open chart</button>
+                                <button *ngIf="subscribedElements[(currentPage[1]-1)*8+i].name.length>1" type="button" class="btn btn-danger" style="width: 45%; margin-left: 5%;" [class.disabled]="subscribedElements[(currentPage[1]-1)*8+i].waitingResponse" (click)="UnsubscribeItem(subscribedElements[(currentPage[1]-1)*8+i].name);subscribedElements[(currentPage[1]-1)*8+i].waitingResponse=true;">
+                                    <span *ngIf="subscribedElements[(currentPage[1]-1)*8+i].waitingResponse" class="spinner-border spinner-border-sm" aria-hidden="true"></span><a *ngIf="!subscribedElements[(currentPage[1]-1)*8+i].waitingResponse">Unsubscribe</a>
+                                </button>
                             </td>
                         </tr>                            
                     </tbody>
