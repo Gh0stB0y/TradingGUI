@@ -73,7 +73,8 @@
                           <ul class="dropdown-menu">
                             <div *ngFor="let category of categories; let i = index">
                                 <li><a class="dropdown-item" (click)="SetCategoryFilter(category)">{{category}}</a></li>
-                            </div>                    
+                            </div>  
+                            <li><a class="dropdown-item" (click)="RemoveFilter()" >Remove filter</a></li>          
                           </ul>
                         </li>
                     </ul> 

@@ -35,9 +35,9 @@ export class ManageInstrumentsComponent implements OnInit {
 
   notSubscribedUnfilteredElements:SubscribtionTablesItem[]=[];
   notSubscribedElements:SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false}];
-  subscribedUnfilteredElements:SubscribtionTablesItem[]=[];
+  // subscribedUnfilteredElements:SubscribtionTablesItem[]=[];
   subscribedElements: SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false}];
-
+  subscribedFilteredElements: SubscribtionTablesItem[]=[];
 
   filter:FilterCriteria={
     Name:'',
@@ -241,7 +241,6 @@ export class ManageInstrumentsComponent implements OnInit {
   NewSubscribtionListener():void{
     this.signalRService.NewSubscribtionListener().subscribe((instrument)=>{
       this.AddRecord(instrument);
-      //let record:SubscribtionTablesItem ={name:instrument.name,category:instrument.category,ask:instrument.ask.toString(),bid:instrument.bid.toString(),leverage:instrument.leverage.toString(),waitingResponse:false};
     });
   }
   RemoveSubscribtionListener():void{
@@ -258,7 +257,6 @@ export class ManageInstrumentsComponent implements OnInit {
       }          
       this.GetCategories(this.notSubscribedUnfilteredElements);
       this.onSearchInput(this.filter);           
-      this.UpdateTables();
       this.initialWaiting=false;
     });
   }
@@ -330,7 +328,38 @@ export class ManageInstrumentsComponent implements OnInit {
       { 
         this.notSubscribedElements = this.notSubscribedElements.filter(item => parseFloat(item.leverage) <= (parseFloat(filter.MaxLeverage)));
       }
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      this.subscribedFilteredElements = this.subscribedElements;
+
+      if(filter.Name !=="")
+      {
+        this.subscribedFilteredElements = this.subscribedFilteredElements.filter(item => item.name.toUpperCase().startsWith(this.filter.Name.toUpperCase()));
+      }
+      if(filter.Category !=="")
+      {
+        this.subscribedFilteredElements = this.subscribedFilteredElements.filter(item => item.category.toUpperCase() === (this.filter.Category.toUpperCase()));
+      }
+      if(filter.MinAsk !=="")
+      { 
+        this.subscribedFilteredElements = this.subscribedFilteredElements.filter(item => parseFloat(item.ask) >= (parseFloat(filter.MinAsk)));
+      }
+      if(filter.MaxAsk !=="")
+      { 
+        this.subscribedFilteredElements = this.subscribedFilteredElements.filter(item => parseFloat(item.ask) <= (parseFloat(filter.MaxAsk)));
+      }
+      if(filter.MinLeverage !=="")
+      { 
+        this.subscribedFilteredElements = this.subscribedFilteredElements.filter(item => parseFloat(item.leverage) >= (parseFloat(filter.MinLeverage)));
+      }
+      if(filter.MaxLeverage !=="")
+      { 
+        this.subscribedFilteredElements = this.subscribedFilteredElements.filter(item => parseFloat(item.leverage) <= (parseFloat(filter.MaxLeverage)));
+      }
+      this.subscribedFilteredElements = this.subscribedFilteredElements.filter(item => item.name.trim() !== '');
+      //////////////////////////////////////////////////////////
       this.UpdateTables();
+      
     }
   }
   SortItems(category: string,ascending:boolean):void {
@@ -386,8 +415,11 @@ export class ManageInstrumentsComponent implements OnInit {
       case this.sortingCategories[2]:
         if(ascending===true)
         {
-          this.notSubscribedElements.sort((a, b) => {          
-            const askComparison = a.ask.localeCompare(b.ask);
+          this.notSubscribedElements.sort((a, b) => {
+            const aAsk = parseFloat(a.ask);
+            const bAsk = parseFloat(b.ask);
+
+            const askComparison = aAsk - bAsk;
             const nameComparison = askComparison === 0 ? a.name.localeCompare(b.name) : askComparison;
             return nameComparison === 0 ? a.category.localeCompare(b.category) : nameComparison;
           });
@@ -395,7 +427,10 @@ export class ManageInstrumentsComponent implements OnInit {
         else
         {
           this.notSubscribedElements.sort((a, b) => {          
-            const askComparison = b.ask.localeCompare(a.ask);
+            const aAsk = parseFloat(a.bid);
+            const bAsk = parseFloat(b.bid);
+          
+            const askComparison = bAsk - aAsk;      
             const nameComparison = askComparison === 0 ? b.name.localeCompare(a.name) : askComparison;
             return nameComparison === 0 ? b.category.localeCompare(a.category) : nameComparison;
           });
@@ -405,17 +440,23 @@ export class ManageInstrumentsComponent implements OnInit {
       case this.sortingCategories[3]:
         if(ascending===true)
         {
-          this.notSubscribedElements.sort((a, b) => {          
-            const askComparison = a.bid.localeCompare(b.bid);
-            const nameComparison = askComparison === 0 ? a.name.localeCompare(b.name) : askComparison;
+          this.notSubscribedElements.sort((a, b) => {
+            const aBid = parseFloat(a.bid);
+            const bBid = parseFloat(b.bid);
+
+            const bidComparison = aBid - bBid;
+            const nameComparison = bidComparison === 0 ? a.name.localeCompare(b.name) : bidComparison;
             return nameComparison === 0 ? a.category.localeCompare(b.category) : nameComparison;
           });
         }
         else
         {
-          this.notSubscribedElements.sort((a, b) => {          
-            const askComparison = b.bid.localeCompare(a.bid);
-            const nameComparison = askComparison === 0 ? b.name.localeCompare(a.name) : askComparison;
+          this.notSubscribedElements.sort((a, b) => {
+            const aBid = parseFloat(a.bid);
+            const bBid = parseFloat(b.bid);
+          
+            const bidComparison = bBid - aBid;      
+            const nameComparison = bidComparison === 0 ? b.name.localeCompare(a.name) : bidComparison;
             return nameComparison === 0 ? b.category.localeCompare(a.category) : nameComparison;
           });
         }
@@ -424,19 +465,26 @@ export class ManageInstrumentsComponent implements OnInit {
       case this.sortingCategories[4]:
         if(ascending===true)
         {
-          this.notSubscribedElements.sort((a, b) => {          
-            const askComparison = a.leverage.localeCompare(b.leverage);
-            const nameComparison = askComparison === 0 ? a.name.localeCompare(b.name) : askComparison;
+          this.notSubscribedElements.sort((a, b) => {
+            const aLeverage = parseFloat(a.leverage);
+            const bLeverage = parseFloat(b.leverage);
+
+            const leverageComparison = aLeverage - bLeverage;
+            const nameComparison = leverageComparison === 0 ? a.name.localeCompare(b.name) : leverageComparison;
             return nameComparison === 0 ? a.category.localeCompare(b.category) : nameComparison;
           });
         }
         else
         {
-          this.notSubscribedElements.sort((a, b) => {          
-            const askComparison = b.leverage.localeCompare(a.leverage);
-            const nameComparison = askComparison === 0 ? b.name.localeCompare(a.name) : askComparison;
+          this.notSubscribedElements.sort((a, b) => {
+            const aLeverage = parseFloat(a.leverage);
+            const bLeverage = parseFloat(b.leverage);
+          
+            const leverageComparison = bLeverage - aLeverage;      
+            const nameComparison = leverageComparison === 0 ? b.name.localeCompare(a.name) : leverageComparison;
             return nameComparison === 0 ? b.category.localeCompare(a.category) : nameComparison;
           });
+
         }
       break;
     
@@ -446,6 +494,11 @@ export class ManageInstrumentsComponent implements OnInit {
     }
 
     this.AddBlankRecords();
+  }
+  RemoveFilter(){
+    this.filter.Category='';
+    this.currentFilter="Filter";
+    this.onSearchInput(this.filter);
   }
   ////////////////////////////////////
 }

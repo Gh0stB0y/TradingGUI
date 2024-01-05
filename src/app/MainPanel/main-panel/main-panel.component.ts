@@ -10,7 +10,7 @@ import { SubscribedItemDTO } from 'src/Models/SubscribeInstruments/SubscribedIte
 import { Logout as LogoutClear } from 'src/app/GlobalMethods/Logout';
 import { HttpServicesService } from 'src/app/Services/http-services.service';
 import { SignalRService } from 'src/app/Services/signalr.service';
-
+import {ElementRef, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-main-panel',
@@ -19,6 +19,8 @@ import { SignalRService } from 'src/app/Services/signalr.service';
               "../../../../css/main.min.css"]
 })
 export class MainPanelComponent implements OnInit {
+  @ViewChild('messageContainer') messageContainer: ElementRef | undefined;
+
   constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService) {}
 
   accountId:string = "";
@@ -109,6 +111,11 @@ export class MainPanelComponent implements OnInit {
     this.signalRService.MessageListener().subscribe((error)=>
     {
       this.messages.push(error);
+      if (this.messageContainer) {
+        setTimeout(() => {
+          this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+        }, 0);
+      }
     })
   }
   LogoutListener():void{

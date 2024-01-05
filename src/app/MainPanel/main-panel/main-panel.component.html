@@ -183,7 +183,7 @@
                             <button type="button" class="btn btn-danger" (click)="ClearChat()">Clear</button>
                         </div>
                         
-                        <div *ngIf="messages.length>0" class="MessageInfo overflow-auto">
+                        <div *ngIf="messages.length>0" class="MessageInfo overflow-auto" #messageContainer>
                             <div class="h-auto bg-secondary py-2 px-0" style="--bs-bg-opacity: .25;" >
                                 <p *ngFor="let message of messages; let i = index" class="text-break px-2 py-1 m-0" style="--bs-bg-opacity: .5"
                                     [ngClass]="{'bg-warning': message.msgType === 'Warning','bg-danger': message.msgType === 'Error'|| message.msgType === 'Critical'}" 
@@ -193,8 +193,6 @@
                                 </p>
                             </div>
                         </div>
-                        
-
                     </div>
                 </div>
                 
