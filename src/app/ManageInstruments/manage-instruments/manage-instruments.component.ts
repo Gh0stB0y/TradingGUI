@@ -9,6 +9,7 @@ import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
 import { FilterCriteria } from 'src/Models/FilterCriteria';
 import { SubscribtionTablesDTO } from 'src/Models/SubscribeInstruments/SubscribtionTablesDTO';
 import { data } from 'jquery';
+import { ChartDataService } from 'src/app/Services/chart-data.service';
 
 @Component({
   selector: 'app-manage-instruments',
@@ -54,7 +55,7 @@ export class ManageInstrumentsComponent implements OnInit {
   currentFilter:string = "Filter";
   currentSortOrder:string = "Ascending";
 
-  constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService) 
+  constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService, private chartDataService:ChartDataService) 
   {
     this.UpdateTables();
     this.CreatePagination();
@@ -240,12 +241,23 @@ export class ManageInstrumentsComponent implements OnInit {
   ///////////////LISTENERS////////////////////
   NewSubscribtionListener():void{
     this.signalRService.NewSubscribtionListener().subscribe((instrument)=>{
+      let index = this.notSubscribedElements.findIndex(e=>e.name === instrument.name);
+      if(index === -1)
+      {
+        console.log("Name not found");
+      }
+      else
+      {
+        this.notSubscribedElements[index].waitingResponse=false;
+      }
       this.AddRecord(instrument);
+      this.chartDataService.UpdateUnsubscribedElements(this.notSubscribedElements);
     });
   }
   RemoveSubscribtionListener():void{
     this.signalRService.RemoveSubscribtionListener().subscribe((instrument)=>{
       this.DeleteRecord(instrument);
+      this.chartDataService.UpdateUnsubscribedElements(this.notSubscribedElements);
     });
   }
   UnsubscribedInstrumentsListener():void{
@@ -258,6 +270,7 @@ export class ManageInstrumentsComponent implements OnInit {
       this.GetCategories(this.notSubscribedUnfilteredElements);
       this.onSearchInput(this.filter);           
       this.initialWaiting=false;
+      this.chartDataService.UpdateUnsubscribedElements(this.notSubscribedElements);
     });
   }
   
@@ -287,6 +300,15 @@ export class ManageInstrumentsComponent implements OnInit {
       let instrument:SubscribeRequestDTO={Jwt:token,Instrument:instrumentName};
       this.signalRService.UnsubscribeInstrument(instrument);
     }
+  }
+  UpdateDb():void{
+    let token = localStorage.getItem("token");
+    let sessionID = localStorage.getItem("sessionId");
+    if(token&&sessionID)
+    {
+      let obj:LoginResponseDTO = {token:token,sessionId:sessionID};
+      this.signalRService.UpdateAvalInstrumentsList(obj);
+    }    
   }
   /////////////////////////////////////////////
 

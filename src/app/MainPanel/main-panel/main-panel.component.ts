@@ -10,21 +10,28 @@ import { SubscribedItemDTO } from 'src/Models/SubscribeInstruments/SubscribedIte
 import { Logout as LogoutClear } from 'src/app/GlobalMethods/Logout';
 import { HttpServicesService } from 'src/app/Services/http-services.service';
 import { SignalRService } from 'src/app/Services/signalr.service';
-import {ElementRef, ViewChild } from '@angular/core';
-
+import {ElementRef, ViewChild,HostListener  } from '@angular/core';
+import { ChartRecord } from './chartData';
+import { ChartDataService } from 'src/app/Services/chart-data.service';
 @Component({
   selector: 'app-main-panel',
   templateUrl:'./main-panel.component.html',
   styleUrls: ['./main-panel.component.scss',
-              "../../../../css/main.min.css"]
+              "../../../../css/main.min.css"],
 })
 export class MainPanelComponent implements OnInit {
   @ViewChild('messageContainer') messageContainer: ElementRef | undefined;
-
-  constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService) {}
-
+  @HostListener('window:beforeunload', ['$event'])
+  unloadHandler(event: Event): void {
+    this.chartDataService.SaveDataToStorage();
+  }
+  
+  constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService, private chartDataService:ChartDataService) {
+    this.chartDataService.DownloadDataFromStorage();
+  }
+  
   accountId:string = "";
-  currentNavbar:number=1;
+  currentNavbar:number=0;
   elements:SubscribedItemDTO[]=[];
   initialWaiting: boolean =true;
   intervals:string [] =['M1', 'M5', 'M15','M30', 'H1', 'H4', 'D1', 'W1'];
@@ -66,6 +73,7 @@ export class MainPanelComponent implements OnInit {
            this.LogoutListener();
            this.NewSubscribtionListener();
            this.RemoveSubscribtionListener();
+           this.ChartRecordListener();
         },
         error:(err) =>{
           console.error(err.error);
@@ -107,6 +115,21 @@ export class MainPanelComponent implements OnInit {
   }
   
   //Listeners
+  ChartRecordListener() {
+    this.signalRService.ChartRecordListener().subscribe((chartRec)=>{
+      let newRec:ChartRecord = 
+      {
+        name:chartRec.name,
+        interval:chartRec.interval,
+        data:
+        [
+          [chartRec.time,chartRec.data]
+        ]
+      }
+      let chartData:ChartRecord[]=[newRec];
+      this.chartDataService.AddChartRecords(chartData);
+    });
+  }
   ErrorMessageListener():void{
     this.signalRService.MessageListener().subscribe((error)=>
     {
@@ -116,7 +139,7 @@ export class MainPanelComponent implements OnInit {
           this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
         }, 0);
       }
-    })
+    });
   }
   LogoutListener():void{
     this.signalRService.LogoutListener().subscribe(()=>

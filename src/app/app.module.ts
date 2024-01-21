@@ -12,6 +12,7 @@ import { TradingSignalsComponent } from './TradingSignals/trading-signals/tradin
 import { TransactionsComponent } from './Transactions/transactions/transactions.component';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    NgApexchartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

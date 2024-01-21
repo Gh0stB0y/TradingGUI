@@ -7,7 +7,7 @@ import { MyMessageDTO } from 'src/Models/MyMessageDTO';
 import { SubscribeRequestDTO } from 'src/Models/SubscribeInstruments/SubscribeRequestDTO';
 import { SubscribtionTablesDTO } from 'src/Models/SubscribeInstruments/SubscribtionTablesDTO';
 import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
-
+import {ChartRecordDTO} from 'src/Models/ChartRecordDTO'
 @Injectable({
   providedIn: 'root'
 })
@@ -20,6 +20,7 @@ export class SignalRService {
   private UnsubscribedInstrumentsSubject: Subject<SubscribtionTablesDTO[]> = new Subject<SubscribtionTablesDTO[]>();
   private NewSubscribtionSubject: Subject<SubscribtionTablesDTO> = new Subject<SubscribtionTablesDTO>();
   private RemoveSubscribtionSubject: Subject<string> = new Subject<string>();
+  private ChartRecordSubject: Subject<ChartRecordDTO> = new Subject<ChartRecordDTO>;
   constructor() 
   {
     // Set up the connection
@@ -59,6 +60,9 @@ export class SignalRService {
           this.hubConnection.on("RemoveSubscribtion",(instrument:string)=>{
             this.RemoveSubscribtionSubject.next(instrument);
           });
+          this.hubConnection.on("ChartRecord",(chartRec:ChartRecordDTO)=>{
+            this.ChartRecordSubject.next(chartRec);
+          });
 
           const data:LoginResponseDTO = {sessionId:SessionId, token:Token}
           this.GetUnsubscribedInstruments(data);
@@ -86,6 +90,9 @@ export class SignalRService {
   GetUnsubscribedInstruments(credentials: LoginResponseDTO) {
     this.hubConnection.invoke('GetUnsubscribedInstruments', credentials);
   }
+  UpdateAvalInstrumentsList(credentials:LoginResponseDTO){
+    this.hubConnection.invoke('UpdateAvalInstrumentsList',credentials);
+  }
   //Listeners
   LogoutListener():Observable<any>{
     return this.LogoutSubject.asObservable();
@@ -104,6 +111,9 @@ export class SignalRService {
   }
   RemoveSubscribtionListener(): Observable<string>{
     return this.RemoveSubscribtionSubject.asObservable();
+  }
+  ChartRecordListener():Observable<ChartRecordDTO>{
+    return this.ChartRecordSubject.asObservable();
   }
   
 }
