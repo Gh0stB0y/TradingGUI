@@ -156,14 +156,19 @@ export class MainPanelComponent implements OnInit {
     });
   }
   NewSubscribtionListener():void{
-    this.signalRService.NewSubscribtionListener().subscribe((instrument)=>{
-      this.elements.push({name:instrument.name,Intervals:this.intervals});
-   
+    this.signalRService.NewSubscribtionListener().subscribe((instrument)=>
+    {
+      if(this.elements.findIndex(e=>e.name ===instrument.name)=== -1)
+      {
+        this.elements.push({name:instrument.name,Intervals:this.intervals});     
+        this.chartDataService.AddSubscribedElements({name:instrument.name,category:instrument.category,ask:instrument.ask.toString(),bid:instrument.bid.toString(),leverage:instrument.leverage.toString(),waitingResponse:false});   
+      }
     });
   }
   RemoveSubscribtionListener():void{
     this.signalRService.RemoveSubscribtionListener().subscribe((instrument)=>{
       this.elements = this.elements.filter(item=>item.name!==instrument);
+      this.chartDataService.DeleteSubscribedElements(instrument);
     });
   }
   //

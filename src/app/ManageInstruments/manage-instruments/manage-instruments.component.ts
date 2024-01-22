@@ -8,7 +8,7 @@ import { SignalRService } from 'src/app/Services/signalr.service';
 import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
 import { FilterCriteria } from 'src/Models/FilterCriteria';
 import { SubscribtionTablesDTO } from 'src/Models/SubscribeInstruments/SubscribtionTablesDTO';
-import { data } from 'jquery';
+import { data, error } from 'jquery';
 import { ChartDataService } from 'src/app/Services/chart-data.service';
 
 @Component({
@@ -59,14 +59,13 @@ export class ManageInstrumentsComponent implements OnInit {
   {
     this.UpdateTables();
     this.CreatePagination();
-    
   }
   
   ngOnInit(): void {
     this.UnsubscribedInstrumentsListener();
     this.NewSubscribtionListener();
     this.RemoveSubscribtionListener();
-    this.GetUnsubscribedItems();
+    this.GetUnsubscribedItems();    
   }
   
 
@@ -207,6 +206,7 @@ export class ManageInstrumentsComponent implements OnInit {
     this.UpdateBlankPage();
     this.UpdateCurrentPage();
     this.UpdateMultiPage();
+    this.chartDataService.UpdateElements(this.notSubscribedElements,this.subscribedElements);
   }
   /////////////////////////////////////////////
   DeleteRecord(instrument:string) 
@@ -250,14 +250,15 @@ export class ManageInstrumentsComponent implements OnInit {
       {
         this.notSubscribedElements[index].waitingResponse=false;
       }
-      this.AddRecord(instrument);
-      this.chartDataService.UpdateUnsubscribedElements(this.notSubscribedElements);
+      if(this.subscribedElements.findIndex(e=>e.name === instrument.name)===-1)
+      {
+        this.AddRecord(instrument);
+      }
     });
   }
   RemoveSubscribtionListener():void{
     this.signalRService.RemoveSubscribtionListener().subscribe((instrument)=>{
       this.DeleteRecord(instrument);
-      this.chartDataService.UpdateUnsubscribedElements(this.notSubscribedElements);
     });
   }
   UnsubscribedInstrumentsListener():void{
@@ -269,12 +270,20 @@ export class ManageInstrumentsComponent implements OnInit {
       }          
       this.GetCategories(this.notSubscribedUnfilteredElements);
       this.onSearchInput(this.filter);           
-      this.initialWaiting=false;
-      this.chartDataService.UpdateUnsubscribedElements(this.notSubscribedElements);
+      this.initialWaiting=false;      
+      this.GetSubscribedItems();
     });
   }
   
   ////////////////////////////////////////////
+  GetSubscribedItems():void{
+
+    let token = localStorage.getItem("token");
+    if(token)
+    {
+      this.signalRService.GetSubscribedInstruments(token);      
+    }
+  }
   GetUnsubscribedItems():void {
     let token = localStorage.getItem("token");
     let sessionID = localStorage.getItem("sessionId");

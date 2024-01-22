@@ -87,6 +87,9 @@ export class SignalRService {
   UnsubscribeInstrument(instrument: SubscribeRequestDTO) {
     this.hubConnection.invoke('UnsubscribeInstrument', instrument);
   }
+  GetSubscribedInstruments(token:string):Promise<SubscribtionTablesDTO[]>{
+    return this.hubConnection.invoke('GetSubscribedInstruments',token);
+  }
   GetUnsubscribedInstruments(credentials: LoginResponseDTO) {
     this.hubConnection.invoke('GetUnsubscribedInstruments', credentials);
   }

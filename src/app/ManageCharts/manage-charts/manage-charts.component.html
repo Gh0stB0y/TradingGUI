@@ -11,11 +11,11 @@
       <div class="collapse navbar-collapse h-100" id="navbarNavDropdown">
         <ul class="navbar-nav">                   
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle me-4 fs-3"  href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle me-4 fs-3"  href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="GetSubscribedInstruments()">
               Instrument
             </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Action</a></li>              
+            <ul class="dropdown-menu">              
+              <li *ngFor="let instrument of subscribedInstruments" ><a class="dropdown-item" (click)="currentInstrument=instrument.name; PrintInstrumentProperties(); PrintChart();">{{instrument.name}}</a></li>              
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -23,23 +23,39 @@
               Interval
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Action</a></li>              
+              <li *ngFor="let interval of intervals" ><a class="dropdown-item" (click)="currentInterval=interval; PrintInstrumentProperties(); PrintChart();">{{interval}}</a></li>                
             </ul>
           </li>                  
         </ul>
       </div>
-      <div class="spacer container" style="width: 10%;">
 
+      <div class="spacer container" style="width: 10%;">
       </div>
+
       <div class="container bg-light-subtle h-75 m-0 p-0 border rounded-2 d-flex align-items-center">
-        <p class="container p-0 m-0 text-center">BITCOIN M5</p>
-        <p class="container p-0 m-0 text-center ">CRT</p>
-        <p class="container p-0 m-0 text-center ">Ask: 123123</p>
-        <p class="container p-0 m-0 text-center ">Bid: 123123</p>
-        <p class="container p-0 m-0 text-center ">Leverage: 5%</p>
+        <p class="container p-0 m-0 text-center">{{InstrumentInfo[0]}}</p>
+        <p class="container p-0 m-0 text-center ">{{InstrumentInfo[1]}}</p>
+        <p class="container p-0 m-0 text-center ">{{InstrumentInfo[2]}}</p>        
+        <p class="container p-0 m-0 text-center ">{{InstrumentInfo[3]}}</p>
       </div>
     </div>
   </nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   <div class="chart-box">
     <div id="chart" #chart></div>

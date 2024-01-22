@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ChartRecord } from '../MainPanel/main-panel/chartData';
 import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
+import { SubscribedItemDTO } from 'src/Models/SubscribeInstruments/SubscribedItemSimple';
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +9,7 @@ import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/Subscrib
 export class ChartDataService {
   private chartData: ChartRecord[] = [];
   private unsubscribedElements:SubscribtionTablesItem[]=[];
+  private subscribedElements:SubscribtionTablesItem[]=[];
 
   DownloadDataFromStorage():void{
     const storedChartData = localStorage.getItem('chartData');
@@ -31,16 +33,8 @@ export class ChartDataService {
   }
   GetChartData(name:string,interval:string):ChartRecord{
 
-    let index = this.chartData.findIndex(e=>e.name === name && e.interval === interval);
-    if(index === -1)
-    {
-      console.log("Name not found");
-      throw new Error("Name not found");
-    }
-    else
-    {
-      return this.chartData[index];
-    }
+    let chart = this.chartData.find(e=>e.name === name && e.interval === interval);    
+    return chart;    
   }
   AddChartRecords(rec:ChartRecord[]){
     for(let i=0;i<rec.length;i++)
@@ -80,7 +74,22 @@ export class ChartDataService {
       this.chartData.splice(index,1);
     }
   }
-  UpdateUnsubscribedElements(data:SubscribtionTablesItem[]):void{
-    this.unsubscribedElements=data;
+
+  AddSubscribedElements(item:SubscribtionTablesItem):void{
+    this.subscribedElements.push(item);
+  }
+  DeleteSubscribedElements(name:string):void{
+    let index=this.subscribedElements.findIndex(e=>e.name ===name);
+    this.subscribedElements.splice(index,1);
+  }
+  UpdateElements(notSubed:SubscribtionTablesItem[],subed:SubscribtionTablesItem[]):void{
+    let unSubscribedItems = notSubed.filter(item => item.name.trim() !== '');
+    this.unsubscribedElements=unSubscribedItems;
+
+    let subscribedItems = subed.filter(item => item.name.trim() !== '');
+    this.subscribedElements=subscribedItems;
+  }  
+  GetSubscribedElements():SubscribtionTablesItem[]{
+    return this.subscribedElements;
   }
 }

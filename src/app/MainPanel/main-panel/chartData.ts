@@ -1,5 +1,3 @@
-import { interval } from "rxjs";
-
 export class ChartRecord{
     name: string;
     interval:string;
