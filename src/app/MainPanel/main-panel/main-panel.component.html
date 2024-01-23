@@ -82,10 +82,10 @@
                                 <div class="accordion-body p-2">
                                     <div *ngFor="let interval of element.Intervals; let j = index">                                    
                                         <div class="btn-group py-1" role="group" aria-label="Basic example">
-                                            <button type="button" class="btn btn-primary text-start fs-5 InstrumentName">{{interval}}</button>
-                                            <button type="button" class="btn btn-primary UnsubInstrument">
+                                            <button type="button" class="btn btn-primary text-start fs-5 InstrumentName" (click)="DisplayChart(element.name,interval)">{{interval}}</button>
+                                            <!-- <button type="button" class="btn btn-primary UnsubInstrument">
                                                 <img src="../../../assets/RedCross.png" alt="UnsubInstrument">
-                                            </button>
+                                            </button> -->
                                         </div>                            
                                     </div>                                                                                              
                                     <button type="button" class="btn btn-danger UnsubAll" (click)="UnsubscribeItem(element.name)">
@@ -106,7 +106,7 @@
                 <!-- Main Window -->
                 <div class="Main p-2 border border-1 border-white">                    
                     <div class="MainWindowContent h-100 m-0 p-0" [ngSwitch]="currentNavbar">                  
-                        <app-manage-charts *ngSwitchCase="0" class="MainWindowComponent h-100">This is content for Case 3.</app-manage-charts>
+                        <app-manage-charts *ngSwitchCase="0" id="ChartWindow" class="MainWindowComponent h-100">This is content for Case 3.</app-manage-charts>
                         <app-manage-instruments *ngSwitchCase="1" class="MainWindowComponent h-100">This is content for Case 3.</app-manage-instruments>
                         <app-trading-signals *ngSwitchCase="2" class="MainWindowComponent h-100">This is content for Case 2.</app-trading-signals>
                         <app-transactions *ngSwitchCase="3" class="MainWindowComponent h-100">This is content for Case 1.</app-transactions>

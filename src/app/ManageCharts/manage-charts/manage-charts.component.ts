@@ -17,6 +17,8 @@ import { ChartRecord } from 'src/app/MainPanel/main-panel/chartData';
 import { SignalRService } from 'src/app/Services/signalr.service';
 import { ChartDataService } from 'src/app/Services/chart-data.service';
 import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
+import { UpdateDataForm } from 'src/Models/ManageCharts/UpdateDataForm';
+import { LoadUnsubscribedForm } from 'src/Models/ManageCharts/LoadUnsubscribedForm';
 
 
 export type ChartOptions = {
@@ -59,24 +61,34 @@ export class ManageChartsComponent implements AfterViewInit{
     series: [
       {
         name: 'candles',    
-        data:[
-                [1705939800000,[1.3188,1.3207,1.3183,1.3206]],
-                [1705939860000,[1.3201,1.3201,1.3163,1.3173]],
-                [1705939920000,[1.33188,1.3407,1.3183,1.3306]],
-                [1705939980000,[1.3101,1.3101,1.3063,1.3073]],                   
-              ]    
+        data:[]    
       },        
     ],
     xaxis: {
       type:'datetime'
     },
+    yaxis:{
+      
+    }
   };
   displayChart:ApexCharts;
-  currentInstrument:string;
-  currentInterval:string;
   InstrumentInfo:string[]=["","","",""];
 
+  UpdateInstrumentForm:UpdateDataForm = {
+    Instrument:'',
+    Interval:'',
+    Alldata:false,
+    SearchInterval:'',
+    SearchNumber:0,
+    candlesNumber:0    
+  }
+  LoadUnsubscribedForm:LoadUnsubscribedForm = {
+    Category:'',
+    Instrument:'',
+    Interval:'',
+  }
 
+  UpdateInstrumentEnabledOption:number=1;
   intervals:string[]=["M1","M5","M15","M30","H1","H4","D1","W1","MN1"];
   subscribedInstruments:SubscribtionTablesItem[]=[];
 
@@ -84,9 +96,11 @@ export class ManageChartsComponent implements AfterViewInit{
   ngAfterViewInit(): void {
     this.initChart();
     this.ChartRecordListener();
+    this.ChartUpdateListener();
+    this.GetSubscribedInstruments(); 
   }
   AddCandles(data:ChartRecord){
-    if(data.name === this.currentInstrument && data.interval === this.currentInterval)
+    if(data.name === this.chartDataService.getCurrentInstrument() && data.interval === this.chartDataService.getCurrentInterval())
     {
       this.displayChart.appendData
       ([{
@@ -99,6 +113,7 @@ export class ManageChartsComponent implements AfterViewInit{
     this.displayChart = new ApexCharts(this.chart.nativeElement, this.options);
     this.displayChart.render();
   }
+
   ChartRecordListener() {
     this.signalRService.ChartRecordListener().subscribe((chartRec)=>{
       let newRec:ChartRecord = 
@@ -113,11 +128,21 @@ export class ManageChartsComponent implements AfterViewInit{
       this.AddCandles(newRec);
     });
   }
+  ChartUpdateListener(){
+    this.chartDataService.getInstrumentObservable().subscribe(()=>{
+      this.PrintInstrumentProperties();
+      this.PrintChart();
+    });
+    this.chartDataService.getIntervalObservable().subscribe(()=>{
+      this.PrintInstrumentProperties();
+      this.PrintChart();    
+    });    
+  }
   GetSubscribedInstruments(){
     this.subscribedInstruments = this.chartDataService.GetSubscribedElements();
   }
   PrintChart(){
-    const chartRecord = this.chartDataService.GetChartData(this.currentInstrument,this.currentInterval);
+    const chartRecord = this.chartDataService.GetChartData();
     if(chartRecord === undefined)
     {
       console.error("Chart record undefined");
@@ -136,7 +161,20 @@ export class ManageChartsComponent implements AfterViewInit{
 
   }
   PrintInstrumentProperties(){
-    const instrument = this.subscribedInstruments.find(e=>e.name === this.currentInstrument)
-    this.InstrumentInfo=[instrument.name,this.currentInterval,instrument.category,"Leverage: " + instrument.leverage];
+    const instrument = this.subscribedInstruments.find(e=>e.name === this.chartDataService.getCurrentInstrument())
+    this.InstrumentInfo=[instrument.name,this.chartDataService.getCurrentInterval(),instrument.category,"Leverage: " + instrument.leverage];
+  }
+  SetCurrentInterval(interval:string){
+    this.chartDataService.updateCurrentInterval(interval);
+  }
+  SetCurrentInstrument(instrument:string){
+    this.chartDataService.updateCurrentInstrument(instrument);
+  }
+
+  LoadUnsubscribedChart(){
+
+  }
+  UpdateIntrumentData(){
+    console.log(this.UpdateInstrumentForm.Instrument);
   }
 }

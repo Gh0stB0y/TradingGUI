@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ChartRecord } from '../MainPanel/main-panel/chartData';
 import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
 import { SubscribedItemDTO } from 'src/Models/SubscribeInstruments/SubscribedItemSimple';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,13 @@ export class ChartDataService {
   private chartData: ChartRecord[] = [];
   private unsubscribedElements:SubscribtionTablesItem[]=[];
   private subscribedElements:SubscribtionTablesItem[]=[];
+  
+  private currentInstrumentSubject = new Subject<string>();
+  private currentIntervalSubject = new Subject<string>();
+
+  private currentInstrument:string = "";
+  private currentInterval:string = "";
+
 
   DownloadDataFromStorage():void{
     const storedChartData = localStorage.getItem('chartData');
@@ -31,9 +39,8 @@ export class ChartDataService {
   GetAllChartData(): ChartRecord[] {    
     return this.chartData;
   }
-  GetChartData(name:string,interval:string):ChartRecord{
-
-    let chart = this.chartData.find(e=>e.name === name && e.interval === interval);    
+  GetChartData():ChartRecord{    
+    let chart = this.chartData.find(e=>e.name === this.currentInstrument && e.interval === this.currentInterval);    
     return chart;    
   }
   AddChartRecords(rec:ChartRecord[]){
@@ -91,5 +98,29 @@ export class ChartDataService {
   }  
   GetSubscribedElements():SubscribtionTablesItem[]{
     return this.subscribedElements;
+  }
+
+
+  updateCurrentInstrument(value: string): void {
+    this.currentInstrument = value;
+    console.log(value);
+    this.currentInstrumentSubject.next(value);
+  }
+  updateCurrentInterval(value: string): void {
+    this.currentInterval = value;
+    console.log(value);
+    this.currentIntervalSubject.next(value);
+  }
+  getCurrentInstrument():string{    
+    return this.currentInstrument;
+  }
+  getCurrentInterval():string{
+    return this.currentInterval;
+  }
+  getInstrumentObservable():Observable<string>{
+    return this.currentInstrumentSubject.asObservable();
+  }
+  getIntervalObservable():Observable<string>{
+    return this.currentIntervalSubject.asObservable();
   }
 }

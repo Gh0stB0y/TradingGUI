@@ -271,19 +271,11 @@ export class ManageInstrumentsComponent implements OnInit {
       this.GetCategories(this.notSubscribedUnfilteredElements);
       this.onSearchInput(this.filter);           
       this.initialWaiting=false;      
-      this.GetSubscribedItems();
     });
   }
   
   ////////////////////////////////////////////
-  GetSubscribedItems():void{
-
-    let token = localStorage.getItem("token");
-    if(token)
-    {
-      this.signalRService.GetSubscribedInstruments(token);      
-    }
-  }
+  
   GetUnsubscribedItems():void {
     let token = localStorage.getItem("token");
     let sessionID = localStorage.getItem("sessionId");

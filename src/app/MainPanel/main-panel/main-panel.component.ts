@@ -13,6 +13,7 @@ import { SignalRService } from 'src/app/Services/signalr.service';
 import {ElementRef, ViewChild,HostListener  } from '@angular/core';
 import { ChartRecord } from './chartData';
 import { ChartDataService } from 'src/app/Services/chart-data.service';
+import { ManageChartsComponent } from 'src/app/ManageCharts/manage-charts/manage-charts.component';
 @Component({
   selector: 'app-main-panel',
   templateUrl:'./main-panel.component.html',
@@ -21,6 +22,7 @@ import { ChartDataService } from 'src/app/Services/chart-data.service';
 })
 export class MainPanelComponent implements OnInit {
   @ViewChild('messageContainer') messageContainer: ElementRef | undefined;
+  @ViewChild('ChartWindow') chartWindow : ManageChartsComponent;
   @HostListener('window:beforeunload', ['$event'])
   unloadHandler(event: Event): void {
     this.chartDataService.SaveDataToStorage();
@@ -113,7 +115,14 @@ export class MainPanelComponent implements OnInit {
       this.signalRService.UnsubscribeInstrument(instrument);
     }
   }
-  
+  DisplayChart(instrument:string, interval:string){
+    this.chartDataService.updateCurrentInstrument(instrument);
+    this.chartDataService.updateCurrentInterval(interval);
+
+    
+    this.currentNavbar=0;
+  }
+
   //Listeners
   ChartRecordListener() {
     this.signalRService.ChartRecordListener().subscribe((chartRec)=>{

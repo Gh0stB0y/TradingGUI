@@ -7,7 +7,7 @@ import { MyMessageDTO } from 'src/Models/MyMessageDTO';
 import { SubscribeRequestDTO } from 'src/Models/SubscribeInstruments/SubscribeRequestDTO';
 import { SubscribtionTablesDTO } from 'src/Models/SubscribeInstruments/SubscribtionTablesDTO';
 import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
-import {ChartRecordDTO} from 'src/Models/ChartRecordDTO'
+import {ChartRecordDTO} from 'src/Models/ManageCharts/ChartRecordDTO'
 @Injectable({
   providedIn: 'root'
 })
@@ -87,9 +87,7 @@ export class SignalRService {
   UnsubscribeInstrument(instrument: SubscribeRequestDTO) {
     this.hubConnection.invoke('UnsubscribeInstrument', instrument);
   }
-  GetSubscribedInstruments(token:string):Promise<SubscribtionTablesDTO[]>{
-    return this.hubConnection.invoke('GetSubscribedInstruments',token);
-  }
+ 
   GetUnsubscribedInstruments(credentials: LoginResponseDTO) {
     this.hubConnection.invoke('GetUnsubscribedInstruments', credentials);
   }

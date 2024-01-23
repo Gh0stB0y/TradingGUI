@@ -15,7 +15,7 @@
               Instrument
             </a>
             <ul class="dropdown-menu">              
-              <li *ngFor="let instrument of subscribedInstruments" ><a class="dropdown-item" (click)="currentInstrument=instrument.name; PrintInstrumentProperties(); PrintChart();">{{instrument.name}}</a></li>              
+              <li *ngFor="let instrument of subscribedInstruments" ><a class="dropdown-item" (click)="SetCurrentInstrument(instrument.name);">{{instrument.name}}</a></li>              
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -23,7 +23,7 @@
               Interval
             </a>
             <ul class="dropdown-menu">
-              <li *ngFor="let interval of intervals" ><a class="dropdown-item" (click)="currentInterval=interval; PrintInstrumentProperties(); PrintChart();">{{interval}}</a></li>                
+              <li *ngFor="let interval of intervals" ><a class="dropdown-item" (click)="SetCurrentInterval(interval);">{{interval}}</a></li>                
             </ul>
           </li>                  
         </ul>
@@ -41,22 +41,6 @@
     </div>
   </nav>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   <div class="chart-box">
     <div id="chart" #chart></div>
   </div>
@@ -64,65 +48,54 @@
   <div class="LowerMenu container-fluid pt-4">
     <div class="row h-100">
       <div class="col h-100">
-        <form class="h-100">
+        <form class="h-100" (ngSubmit)="UpdateIntrumentData()"  #updateForm="ngForm">
           <legend class="w-100 text-center">Update Instrument data</legend>      
 
           <div class="container d-flex p-0 mb-1">
-            <select class="form-select me-2 " aria-label="Default select example">   
-              <option selected>Instrument</option>         
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
+            <select class="form-select me-2" name="instrument" [(ngModel)]="UpdateInstrumentForm.Instrument">   
+              <option *ngFor="let instrument of subscribedInstruments" >{{instrument.name}}</option>         
             </select>
 
-            <select class="form-select m-0 w-auto" aria-label="Default select example">          
-              <option selected>Interval</option>  
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
+            <select class="form-select m-0 w-auto" aria-label="Default select example" name="interval" [(ngModel)]="UpdateInstrumentForm.Interval">           
+              <option *ngFor="let interval of intervals">{{interval}}</option>                          
             </select>
           </div>
 
           <div class="container p-0 m-0 d-flex flex-column">
 
             <div class="form-check d-flex align-items-center w-100 my-1 py-1">
-              <input class="form-check-input my-1" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+              <input class="form-check-input my-1" type="radio" name="flexRadioDefault" id="flexRadioDefault1" (click)="UpdateInstrumentEnabledOption=1; UpdateInstrumentForm.Alldata=true">
               <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault1">
                 Get all data
               </label>
             </div>            
             <div class="form-check d-flex align-items-center w-100 my-1 py-1">
-              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault2">
+              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault2" (click)="UpdateInstrumentEnabledOption=2; UpdateInstrumentForm.Alldata=false">
               <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault2">
                 <p class="container d-flex align-items-center w-auto h-100 m-0 p-0">
                   Get data from last  
                 </p>
-                <input type="number" class="form-control py-1 mx-2" style="width: 20%;" aria-label="Number input with dropdown button" min="0" max="999" disabled>
-                <select class="form-select pe-5 ps-2 py-1 m-0 w-auto" aria-label="Default select example" disabled>          
+                <input type="number" class="form-control py-1 mx-2" style="width: 20%;" aria-label="Number input with dropdown button" min="0" max="999" [disabled]="UpdateInstrumentEnabledOption!==2" name="SearchNumber" [(ngModel)]="UpdateInstrumentForm.SearchNumber">
+                <select class="form-select pe-5 ps-2 py-1 m-0 w-auto" aria-label="Default select example" [disabled]="UpdateInstrumentEnabledOption!==2" name="SearchInterval" [(ngModel)]="UpdateInstrumentForm.SearchInterval">          
                   <option selected>Minutes</option>  
-                  <option value="1">Hours</option>
-                  <option value="2">Days</option>
-                  <option value="3">Weeks</option>
-                  <option value="4">Months</option>
+                  <option>Hours</option>
+                  <option>Days</option>
+                  <option>Weeks</option>
+                  <option>Months</option>
                 </select>
               </label>
             </div>
             <div class="form-check d-flex align-items-center w-100 my-1 py-1">
-              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault2">
-              <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault2">
+              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault3" (click)="UpdateInstrumentEnabledOption=3;  UpdateInstrumentForm.Alldata=false">
+              <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault3">
                 <p class="container d-flex align-items-center w-auto h-100 m-0 p-0">
-                  Get data from last  
+                  Get last  
                 </p>
-                <input type="number" class="form-control py-1 mx-2" style="width: 20%;" aria-label="Number input with dropdown button" min="0" max="999" disabled>
-                <select class="form-select pe-5 ps-2 py-1 m-0 w-auto" aria-label="Default select example" disabled>          
-                  <option selected>Minutes</option>  
-                  <option value="1">Hours</option>
-                  <option value="2">Days</option>
-                  <option value="3">Weeks</option>
-                  <option value="4">Months</option>
-                </select>
+                <input type="number" class="form-control py-1 mx-2" style="width: 35%;" aria-label="Number input with dropdown button" min="0" max="999"  [disabled]="UpdateInstrumentEnabledOption!==3" [(ngModel)]="UpdateInstrumentForm.candlesNumber" name="candlesNumber">
+                 candles                
               </label>
             </div>
+
 
             <div class="d-flex align-items-center h-auto my-1">
               <button type="submit" class="btn btn-primary">Submit</button>              
@@ -133,33 +106,35 @@
 
       </div>
       <div class="col h-100">
-        <legend class="w-100 text-center">Load unsubscribed charts</legend>
-        <select class="form-select py-3 mb-2" aria-label="Default select example" >   
-          <option selected>Category</option>         
-          <option value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
-        </select>
-        
-        <div class="container d-flex p-0 mb-1">
-          <select class="form-select py-3 me-2" aria-label="Default select example" disabled>   
-            <option selected>Instrument</option>         
+        <form class="h-100" (ngSubmit)="LoadUnsubscribedChart()" #loadUnsubscribedForm="ngForm">
+          <legend class="w-100 text-center">Load unsubscribed charts</legend>
+          <select class="form-select py-3 mb-2" aria-label="Default select example" >   
+            <option selected>Category</option>         
             <option value="1">One</option>
             <option value="2">Two</option>
             <option value="3">Three</option>
           </select>
+          
+          <div class="container d-flex p-0 mb-1">
+            <select class="form-select py-3 me-2" aria-label="Default select example" disabled>   
+              <option selected>Instrument</option>         
+              <option value="1">One</option>
+              <option value="2">Two</option>
+              <option value="3">Three</option>
+            </select>
 
-          <select class="form-select m-0 w-auto" aria-label="Default select example" disabled>          
-            <option selected>Interval</option>  
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-          </select>
-        </div>
+            <select class="form-select m-0 w-auto" aria-label="Default select example" disabled>          
+              <option selected>Interval</option>  
+              <option value="1">One</option>
+              <option value="2">Two</option>
+              <option value="3">Three</option>
+            </select>
+          </div>
 
-        <div class="d-flex align-items-center h-auto my-3">
-              <button type="submit" class="btn btn-primary">Submit</button>              
-            </div>
+          <div class="d-flex align-items-center h-auto my-3">
+                <button type="submit" class="btn btn-primary">Submit</button>              
+          </div>
+        </form>
       </div>
     </div>
   </div>
