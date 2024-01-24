@@ -8,6 +8,9 @@ import { SubscribeRequestDTO } from 'src/Models/SubscribeInstruments/SubscribeRe
 import { SubscribtionTablesDTO } from 'src/Models/SubscribeInstruments/SubscribtionTablesDTO';
 import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
 import {ChartRecordDTO} from 'src/Models/ManageCharts/ChartRecordDTO'
+import { UpdateDataForm } from 'src/Models/ManageCharts/UpdateDataForm';
+import { ChartRecord } from '../MainPanel/main-panel/chartData';
+import { UpdateChartDTO } from 'src/Models/ManageCharts/UpdateChartDTO';
 @Injectable({
   providedIn: 'root'
 })
@@ -20,7 +23,8 @@ export class SignalRService {
   private UnsubscribedInstrumentsSubject: Subject<SubscribtionTablesDTO[]> = new Subject<SubscribtionTablesDTO[]>();
   private NewSubscribtionSubject: Subject<SubscribtionTablesDTO> = new Subject<SubscribtionTablesDTO>();
   private RemoveSubscribtionSubject: Subject<string> = new Subject<string>();
-  private ChartRecordSubject: Subject<ChartRecordDTO> = new Subject<ChartRecordDTO>;
+  private ChartRecordSubject: Subject<ChartRecordDTO> = new Subject<ChartRecordDTO>();
+  private UpdateChartSubject: Subject<UpdateChartDTO> = new Subject<UpdateChartDTO>();
   constructor() 
   {
     // Set up the connection
@@ -63,6 +67,9 @@ export class SignalRService {
           this.hubConnection.on("ChartRecord",(chartRec:ChartRecordDTO)=>{
             this.ChartRecordSubject.next(chartRec);
           });
+          this.hubConnection.on("UpdateChart",(chartRecords:UpdateChartDTO)=>{
+            this.UpdateChartSubject.next(chartRecords);
+          });
 
           const data:LoginResponseDTO = {sessionId:SessionId, token:Token}
           this.GetUnsubscribedInstruments(data);
@@ -87,12 +94,14 @@ export class SignalRService {
   UnsubscribeInstrument(instrument: SubscribeRequestDTO) {
     this.hubConnection.invoke('UnsubscribeInstrument', instrument);
   }
- 
   GetUnsubscribedInstruments(credentials: LoginResponseDTO) {
     this.hubConnection.invoke('GetUnsubscribedInstruments', credentials);
   }
   UpdateAvalInstrumentsList(credentials:LoginResponseDTO){
     this.hubConnection.invoke('UpdateAvalInstrumentsList',credentials);
+  }
+  UpdateIntrumentData(object:UpdateDataForm, token:string){
+    this.hubConnection.invoke("UpdateIntrumentData",object,token);
   }
   //Listeners
   LogoutListener():Observable<any>{
@@ -116,5 +125,7 @@ export class SignalRService {
   ChartRecordListener():Observable<ChartRecordDTO>{
     return this.ChartRecordSubject.asObservable();
   }
-  
+  UpdateChartListener():Observable<UpdateChartDTO>{
+    return this.UpdateChartSubject.asObservable();
+  }
 }

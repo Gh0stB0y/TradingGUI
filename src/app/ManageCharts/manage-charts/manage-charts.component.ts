@@ -19,6 +19,7 @@ import { ChartDataService } from 'src/app/Services/chart-data.service';
 import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
 import { UpdateDataForm } from 'src/Models/ManageCharts/UpdateDataForm';
 import { LoadUnsubscribedForm } from 'src/Models/ManageCharts/LoadUnsubscribedForm';
+import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
 
 
 export type ChartOptions = {
@@ -75,8 +76,8 @@ export class ManageChartsComponent implements AfterViewInit{
   InstrumentInfo:string[]=["","","",""];
 
   UpdateInstrumentForm:UpdateDataForm = {
-    Instrument:'',
-    Interval:'',
+    Instrument:'1',
+    Interval:'1',
     Alldata:false,
     SearchInterval:'',
     SearchNumber:0,
@@ -88,6 +89,7 @@ export class ManageChartsComponent implements AfterViewInit{
     Interval:'',
   }
 
+  checkmarks:boolean[]=[false,false,false];
   UpdateInstrumentEnabledOption:number=1;
   intervals:string[]=["M1","M5","M15","M30","H1","H4","D1","W1","MN1"];
   subscribedInstruments:SubscribtionTablesItem[]=[];
@@ -98,6 +100,7 @@ export class ManageChartsComponent implements AfterViewInit{
     this.ChartRecordListener();
     this.ChartUpdateListener();
     this.GetSubscribedInstruments(); 
+    this.UpdateIntrumentListener();
   }
   AddCandles(data:ChartRecord){
     if(data.name === this.chartDataService.getCurrentInstrument() && data.interval === this.chartDataService.getCurrentInterval())
@@ -113,7 +116,6 @@ export class ManageChartsComponent implements AfterViewInit{
     this.displayChart = new ApexCharts(this.chart.nativeElement, this.options);
     this.displayChart.render();
   }
-
   ChartRecordListener() {
     this.signalRService.ChartRecordListener().subscribe((chartRec)=>{
       let newRec:ChartRecord = 
@@ -137,6 +139,27 @@ export class ManageChartsComponent implements AfterViewInit{
       this.PrintInstrumentProperties();
       this.PrintChart();    
     });    
+  }
+  DeleteChartData(){
+    this.chartDataService.DeleteChartData();
+    this.PrintChart();
+  }
+  UpdateIntrumentListener(){
+    this.signalRService.UpdateChartListener().subscribe((DTO)=>{
+      console.log(DTO);
+      let chartRec:ChartRecord = {
+        name:DTO.name,
+        interval:DTO.interval,
+        data:[]
+      }
+      for(let i = 0 ; i<DTO.data.length;i++)
+      {
+        chartRec.data.push([DTO.data[i].time,DTO.data[i].data]);
+      }
+      console.log(chartRec);
+      this.chartDataService.AddChartRecords([chartRec]);
+      this.AddCandles(chartRec);
+    });
   }
   GetSubscribedInstruments(){
     this.subscribedInstruments = this.chartDataService.GetSubscribedElements();
@@ -171,10 +194,38 @@ export class ManageChartsComponent implements AfterViewInit{
     this.chartDataService.updateCurrentInstrument(instrument);
   }
 
+  UpdateCheckmark(index:number){
+    for(let i=0;i<this.checkmarks.length;i++){
+      this.checkmarks[i]=false;
+    }
+    this.checkmarks[index]=true;
+    
+  }
   LoadUnsubscribedChart(){
 
   }
-  UpdateIntrumentData(){
-    console.log(this.UpdateInstrumentForm.Instrument);
+  UpdateIntrumentData(){      
+    switch(this.UpdateInstrumentEnabledOption)
+    {
+      case 1:        
+        break;
+      case 2:
+        this.UpdateInstrumentForm.candlesNumber=0;
+      break;
+      case 3:
+        this.UpdateInstrumentForm.SearchNumber=0;
+        this.UpdateInstrumentForm.SearchInterval='';
+      break;
+      default:
+        console.log("empty record");
+      break;
+    }
+
+    let token = localStorage.getItem("token");
+    
+    if(token)
+    {
+      this.signalRService.UpdateIntrumentData(this.UpdateInstrumentForm,token);
+    }
   }
 }

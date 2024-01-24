@@ -8,6 +8,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class ChartDataService {
+  
   private chartData: ChartRecord[] = [];
   private unsubscribedElements:SubscribtionTablesItem[]=[];
   private subscribedElements:SubscribtionTablesItem[]=[];
@@ -35,6 +36,16 @@ export class ChartDataService {
   ClearCharData():void{
     localStorage.removeItem('chartData');
   }
+  DeleteChartData() {
+    let index = this.chartData.findIndex(e=>e.name === this.currentInstrument && e.interval === this.currentInterval);
+    if(index === -1){
+      console.error("Chart records not found");
+    }
+    else{
+      this.chartData[index].data=[];
+      this.SaveDataToStorage();
+    }
+  }    
 //////////////////////////////////////
   GetAllChartData(): ChartRecord[] {    
     return this.chartData;
@@ -59,10 +70,7 @@ export class ChartDataService {
           let existingCandle = this.chartData[index].data.findIndex(e=>e[0] === rec[i].data[j][0])
           if(existingCandle === -1){
             this.chartData[index].data.push(rec[i].data[j]);
-          }
-          else{
-            console.error("candle with such date already in localstorage");
-          }
+          }          
         }
       }    
     }    
@@ -103,12 +111,10 @@ export class ChartDataService {
 
   updateCurrentInstrument(value: string): void {
     this.currentInstrument = value;
-    console.log(value);
     this.currentInstrumentSubject.next(value);
   }
   updateCurrentInterval(value: string): void {
     this.currentInterval = value;
-    console.log(value);
     this.currentIntervalSubject.next(value);
   }
   getCurrentInstrument():string{    

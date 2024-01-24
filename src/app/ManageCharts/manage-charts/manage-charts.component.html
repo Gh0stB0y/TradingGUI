@@ -29,7 +29,8 @@
         </ul>
       </div>
 
-      <div class="spacer container" style="width: 10%;">
+      <div class="spacer container d-flex px-4" style="width: 40%;">
+        <button type="button" class="btn btn-danger w-100" (click)="DeleteChartData()">Delete Chart Data</button>
       </div>
 
       <div class="container bg-light-subtle h-75 m-0 p-0 border rounded-2 d-flex align-items-center">
@@ -52,11 +53,13 @@
           <legend class="w-100 text-center">Update Instrument data</legend>      
 
           <div class="container d-flex p-0 mb-1">
-            <select class="form-select me-2" name="instrument" [(ngModel)]="UpdateInstrumentForm.Instrument">   
-              <option *ngFor="let instrument of subscribedInstruments" >{{instrument.name}}</option>         
+            <select class="form-select me-2" aria-label="Default select example" name="instrument" [(ngModel)]="UpdateInstrumentForm.Instrument">
+              <option value="1" selected>Instrument</option>
+              <option *ngFor="let instrument of subscribedInstruments">{{instrument.name}}</option>         
             </select>
 
-            <select class="form-select m-0 w-auto" aria-label="Default select example" name="interval" [(ngModel)]="UpdateInstrumentForm.Interval">           
+            <select class="form-select m-0 w-auto" aria-label="Default select example" name="interval" [(ngModel)]="UpdateInstrumentForm.Interval">   
+              <option value="1" selected>Interval</option>       
               <option *ngFor="let interval of intervals">{{interval}}</option>                          
             </select>
           </div>
@@ -64,13 +67,13 @@
           <div class="container p-0 m-0 d-flex flex-column">
 
             <div class="form-check d-flex align-items-center w-100 my-1 py-1">
-              <input class="form-check-input my-1" type="radio" name="flexRadioDefault" id="flexRadioDefault1" (click)="UpdateInstrumentEnabledOption=1; UpdateInstrumentForm.Alldata=true">
+              <input class="form-check-input my-1" type="radio" name="flexRadioDefault" id="flexRadioDefault1" (click)="UpdateInstrumentEnabledOption=1; UpdateInstrumentForm.Alldata=true; UpdateCheckmark(0);" [checked]="checkmarks[0]">
               <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault1">
                 Get all data
               </label>
             </div>            
             <div class="form-check d-flex align-items-center w-100 my-1 py-1">
-              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault2" (click)="UpdateInstrumentEnabledOption=2; UpdateInstrumentForm.Alldata=false">
+              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault2" (click)="UpdateInstrumentEnabledOption=2; UpdateInstrumentForm.Alldata=false; UpdateCheckmark(1);" [checked]="checkmarks[1]" >
               <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault2">
                 <p class="container d-flex align-items-center w-auto h-100 m-0 p-0">
                   Get data from last  
@@ -86,7 +89,7 @@
               </label>
             </div>
             <div class="form-check d-flex align-items-center w-100 my-1 py-1">
-              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault3" (click)="UpdateInstrumentEnabledOption=3;  UpdateInstrumentForm.Alldata=false">
+              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault3" (click)="UpdateInstrumentEnabledOption=3; UpdateInstrumentForm.Alldata=false; UpdateCheckmark(2);" [checked]="checkmarks[2]">
               <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault3">
                 <p class="container d-flex align-items-center w-auto h-100 m-0 p-0">
                   Get last  
