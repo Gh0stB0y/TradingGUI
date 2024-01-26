@@ -2,7 +2,7 @@ export interface UpdateDataForm{
     Instrument:string;
     Interval:string;
     
-    Alldata:boolean;
+    Option:number;
     
     SearchInterval:string;
     SearchNumber:number;

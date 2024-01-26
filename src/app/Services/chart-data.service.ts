@@ -10,11 +10,13 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 export class ChartDataService {
   
   private chartData: ChartRecord[] = [];
-  private unsubscribedElements:SubscribtionTablesItem[]=[];
   private subscribedElements:SubscribtionTablesItem[]=[];
   
   private currentInstrumentSubject = new Subject<string>();
   private currentIntervalSubject = new Subject<string>();
+  private unsubscribedCategoriesSubject = new Subject<string[]>();
+
+  private unsubscribedCategories:string[]=[];
 
   private currentInstrument:string = "";
   private currentInterval:string = "";
@@ -74,7 +76,7 @@ export class ChartDataService {
         }
       }    
     }    
-    console.log(this.chartData);
+    // console.log(this.chartData);
   }
   ClearChartRecord(rec:ChartRecord):void
   {
@@ -97,36 +99,38 @@ export class ChartDataService {
     let index=this.subscribedElements.findIndex(e=>e.name ===name);
     this.subscribedElements.splice(index,1);
   }
-  UpdateElements(notSubed:SubscribtionTablesItem[],subed:SubscribtionTablesItem[]):void{
-    let unSubscribedItems = notSubed.filter(item => item.name.trim() !== '');
-    this.unsubscribedElements=unSubscribedItems;
-
+  UpdateElements(subed:SubscribtionTablesItem[]):void{
     let subscribedItems = subed.filter(item => item.name.trim() !== '');
     this.subscribedElements=subscribedItems;
   }  
   GetSubscribedElements():SubscribtionTablesItem[]{
     return this.subscribedElements;
   }
-
-
-  updateCurrentInstrument(value: string): void {
+  UpdateCurrentInstrument(value: string): void {
     this.currentInstrument = value;
     this.currentInstrumentSubject.next(value);
   }
-  updateCurrentInterval(value: string): void {
+  UpdateCurrentInterval(value: string): void {
     this.currentInterval = value;
     this.currentIntervalSubject.next(value);
   }
-  getCurrentInstrument():string{    
+  UpdateUnsubscribedCategories(data:string[]){
+    this.unsubscribedCategories=data;
+    this.unsubscribedCategoriesSubject.next(data);
+  }
+  GetCurrentInstrument():string{    
     return this.currentInstrument;
   }
-  getCurrentInterval():string{
+  GetCurrentInterval():string{
     return this.currentInterval;
   }
-  getInstrumentObservable():Observable<string>{
+  GetInstrumentObservable():Observable<string>{
     return this.currentInstrumentSubject.asObservable();
   }
-  getIntervalObservable():Observable<string>{
+  GetIntervalObservable():Observable<string>{
     return this.currentIntervalSubject.asObservable();
+  }
+  GetCategoriesObservable():Observable<string[]>{
+    return this.unsubscribedCategoriesSubject.asObservable();
   }
 }

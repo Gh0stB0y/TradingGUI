@@ -116,11 +116,9 @@ export class MainPanelComponent implements OnInit {
     }
   }
   DisplayChart(instrument:string, interval:string){
-    this.chartDataService.updateCurrentInstrument(instrument);
-    this.chartDataService.updateCurrentInterval(interval);
-
-    
-    this.currentNavbar=0;
+    this.ChooseNavbar(0);
+    this.chartDataService.UpdateCurrentInstrument(instrument);
+    this.chartDataService.UpdateCurrentInterval(interval);    
   }
 
   //Listeners

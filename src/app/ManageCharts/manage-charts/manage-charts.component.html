@@ -57,7 +57,6 @@
               <option value="1" selected>Instrument</option>
               <option *ngFor="let instrument of subscribedInstruments">{{instrument.name}}</option>         
             </select>
-
             <select class="form-select m-0 w-auto" aria-label="Default select example" name="interval" [(ngModel)]="UpdateInstrumentForm.Interval">   
               <option value="1" selected>Interval</option>       
               <option *ngFor="let interval of intervals">{{interval}}</option>                          
@@ -67,19 +66,19 @@
           <div class="container p-0 m-0 d-flex flex-column">
 
             <div class="form-check d-flex align-items-center w-100 my-1 py-1">
-              <input class="form-check-input my-1" type="radio" name="flexRadioDefault" id="flexRadioDefault1" (click)="UpdateInstrumentEnabledOption=1; UpdateInstrumentForm.Alldata=true; UpdateCheckmark(0);" [checked]="checkmarks[0]">
+              <input class="form-check-input my-1" type="radio" name="flexRadioDefault" id="flexRadioDefault1" (click)="UpdateInstrumentForm.Option=1; UpdateCheckmark(0);" [checked]="checkmarks[0]" disabled>
               <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault1">
-                Get all data
+                Get all data [available soon]
               </label>
             </div>            
             <div class="form-check d-flex align-items-center w-100 my-1 py-1">
-              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault2" (click)="UpdateInstrumentEnabledOption=2; UpdateInstrumentForm.Alldata=false; UpdateCheckmark(1);" [checked]="checkmarks[1]" >
+              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault2" (click)="UpdateInstrumentForm.Option=2; UpdateCheckmark(1);" [checked]="checkmarks[1]" >
               <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault2">
                 <p class="container d-flex align-items-center w-auto h-100 m-0 p-0">
                   Get data from last  
                 </p>
-                <input type="number" class="form-control py-1 mx-2" style="width: 20%;" aria-label="Number input with dropdown button" min="0" max="999" [disabled]="UpdateInstrumentEnabledOption!==2" name="SearchNumber" [(ngModel)]="UpdateInstrumentForm.SearchNumber">
-                <select class="form-select pe-5 ps-2 py-1 m-0 w-auto" aria-label="Default select example" [disabled]="UpdateInstrumentEnabledOption!==2" name="SearchInterval" [(ngModel)]="UpdateInstrumentForm.SearchInterval">          
+                <input type="number" class="form-control py-1 mx-2" style="width: 20%;" aria-label="Number input with dropdown button" min="0" max="999" [disabled]="UpdateInstrumentForm.Option!==2" name="SearchNumber" [(ngModel)]="UpdateInstrumentForm.SearchNumber">
+                <select class="form-select pe-5 ps-2 py-1 m-0 w-auto" aria-label="Default select example" [disabled]="UpdateInstrumentForm.Option!==2" name="SearchInterval" [(ngModel)]="UpdateInstrumentForm.SearchInterval">          
                   <option selected>Minutes</option>  
                   <option>Hours</option>
                   <option>Days</option>
@@ -89,16 +88,15 @@
               </label>
             </div>
             <div class="form-check d-flex align-items-center w-100 my-1 py-1">
-              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault3" (click)="UpdateInstrumentEnabledOption=3; UpdateInstrumentForm.Alldata=false; UpdateCheckmark(2);" [checked]="checkmarks[2]">
+              <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault3" (click)="UpdateInstrumentForm.Option=3;UpdateCheckmark(2);" [checked]="checkmarks[2]">
               <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault3">
                 <p class="container d-flex align-items-center w-auto h-100 m-0 p-0">
                   Get last  
                 </p>
-                <input type="number" class="form-control py-1 mx-2" style="width: 35%;" aria-label="Number input with dropdown button" min="0" max="999"  [disabled]="UpdateInstrumentEnabledOption!==3" [(ngModel)]="UpdateInstrumentForm.candlesNumber" name="candlesNumber">
+                <input type="number" class="form-control py-1 mx-2" style="width: 35%;" aria-label="Number input with dropdown button" min="0" max="999"  [disabled]="UpdateInstrumentForm.Option!==3" [(ngModel)]="UpdateInstrumentForm.candlesNumber" name="candlesNumber">
                  candles                
               </label>
             </div>
-
 
             <div class="d-flex align-items-center h-auto my-1">
               <button type="submit" class="btn btn-primary">Submit</button>              
@@ -111,30 +109,49 @@
       <div class="col h-100">
         <form class="h-100" (ngSubmit)="LoadUnsubscribedChart()" #loadUnsubscribedForm="ngForm">
           <legend class="w-100 text-center">Load unsubscribed charts</legend>
-          <select class="form-select py-3 mb-2" aria-label="Default select example" >   
-            <option selected>Category</option>         
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
+          <select class="form-select py-2 mb-2" aria-label="Default select example" name="category2" [(ngModel)]="LoadUnsubscribedForm.Category" (change)="GetUnsubscribedInstruments($event)">   
+            <option value="1" selected>Category</option>         
+            <option *ngFor="let category of unsubscribedCategories">{{category}}</option>
           </select>
           
           <div class="container d-flex p-0 mb-1">
-            <select class="form-select py-3 me-2" aria-label="Default select example" disabled>   
-              <option selected>Instrument</option>         
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
+            <select class="form-select py-1 me-2" aria-label="Default select example" name="instrument2" [disabled]="unlockUnsubscribedInstruments===false" [(ngModel)]="LoadUnsubscribedForm.Instrument">   
+              <option value="1">Instrument</option>         
+              <option *ngFor="let instrument of unsubscribedInstruments">{{instrument.name}}</option>
             </select>
 
-            <select class="form-select m-0 w-auto" aria-label="Default select example" disabled>          
-              <option selected>Interval</option>  
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
+            <select class="form-select m-0 w-auto" aria-label="Default select example" name="interval2"  [disabled]="unlockUnsubscribedInstruments===false"  [(ngModel)]="LoadUnsubscribedForm.Interval">          
+              <option  value="1">Interval</option>  
+              <option *ngFor="let interval of intervals">{{interval}}</option> 
             </select>
           </div>
-
-          <div class="d-flex align-items-center h-auto my-3">
+          <div class="form-check d-flex align-items-center w-100 my-1 py-1">
+            <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault4" (click)="LoadUnsubscribedForm.Option=1;" >
+            <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault4">
+              <p class="container d-flex align-items-center w-auto h-100 m-0 p-0">
+                Get data from last  
+              </p>
+              <input type="number" class="form-control py-1 mx-2" style="width: 20%;" aria-label="Number input with dropdown button" min="0" max="999" [disabled]="LoadUnsubscribedForm.Option!==1" name="SearchNumber2" [(ngModel)]="LoadUnsubscribedForm.SearchNumber">
+              <select class="form-select pe-5 ps-2 py-1 m-0 w-auto" aria-label="Default select example" [disabled]="LoadUnsubscribedForm.Option!==1" name="SearchInterval2" [(ngModel)]="LoadUnsubscribedForm.SearchInterval">          
+                <option>Minutes</option>  
+                <option>Hours</option>
+                <option>Days</option>
+                <option>Weeks</option>
+                <option>Months</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-check d-flex align-items-center w-100 my-1 py-1">
+            <input class="form-check-input " type="radio" name="flexRadioDefault" id="flexRadioDefault5" (click)="LoadUnsubscribedForm.Option=2">
+            <label class="form-check-label d-flex align-items-center w-auto h-100 ps-3" for="flexRadioDefault5">
+              <p class="container d-flex align-items-center w-auto h-100 m-0 p-0">
+                Get last  
+              </p>
+              <input type="number" class="form-control py-1 mx-2" style="width: 35%;" aria-label="Number input with dropdown button" min="0" max="999"  [disabled]="LoadUnsubscribedForm.Option!==2" [(ngModel)]="LoadUnsubscribedForm.candlesNumber" name="candlesNumber2">
+               candles                
+            </label>
+          </div>
+          <div class="d-flex align-items-center h-auto my-2">
                 <button type="submit" class="btn btn-primary">Submit</button>              
           </div>
         </form>

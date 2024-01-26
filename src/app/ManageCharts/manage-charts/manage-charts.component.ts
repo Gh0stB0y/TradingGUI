@@ -20,6 +20,8 @@ import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/Subscrib
 import { UpdateDataForm } from 'src/Models/ManageCharts/UpdateDataForm';
 import { LoadUnsubscribedForm } from 'src/Models/ManageCharts/LoadUnsubscribedForm';
 import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
+import { SubscribtionTablesDTO } from 'src/Models/SubscribeInstruments/SubscribtionTablesDTO';
+import { UpdateChartDTO } from 'src/Models/ManageCharts/UpdateChartDTO';
 
 
 export type ChartOptions = {
@@ -78,32 +80,42 @@ export class ManageChartsComponent implements AfterViewInit{
   UpdateInstrumentForm:UpdateDataForm = {
     Instrument:'1',
     Interval:'1',
-    Alldata:false,
+    Option:0,
     SearchInterval:'',
     SearchNumber:0,
     candlesNumber:0    
   }
   LoadUnsubscribedForm:LoadUnsubscribedForm = {
-    Category:'',
-    Instrument:'',
-    Interval:'',
+    Category:'1',
+    Instrument:'1',
+    Interval:'1',
+    Option:0,
+    SearchInterval:'',
+    SearchNumber:0,
+    candlesNumber:0 
   }
 
   checkmarks:boolean[]=[false,false,false];
-  UpdateInstrumentEnabledOption:number=1;
   intervals:string[]=["M1","M5","M15","M30","H1","H4","D1","W1","MN1"];
   subscribedInstruments:SubscribtionTablesItem[]=[];
-
-  constructor(private signalRService:SignalRService, private chartDataService:ChartDataService){}
+  
+  unsubscribedInstruments:SubscribtionTablesItem[]=[];
+  unsubscribedCategories:string[]=[];
+  unlockUnsubscribedInstruments:boolean=false;
+  constructor(private signalRService:SignalRService, private chartDataService:ChartDataService){
+    this.GetSubscribedInstruments(); 
+  }
   ngAfterViewInit(): void {
     this.initChart();
     this.ChartRecordListener();
-    this.ChartUpdateListener();
-    this.GetSubscribedInstruments(); 
+    this.ChartUpdateListener();    
+    this.UnsubscribedCategoriesListener();
     this.UpdateIntrumentListener();
+    this.PrintInstrumentProperties();
+    this.PrintChart();
   }
   AddCandles(data:ChartRecord){
-    if(data.name === this.chartDataService.getCurrentInstrument() && data.interval === this.chartDataService.getCurrentInterval())
+    if(data.name === this.chartDataService.GetCurrentInstrument() && data.interval === this.chartDataService.GetCurrentInterval())
     {
       this.displayChart.appendData
       ([{
@@ -131,22 +143,18 @@ export class ManageChartsComponent implements AfterViewInit{
     });
   }
   ChartUpdateListener(){
-    this.chartDataService.getInstrumentObservable().subscribe(()=>{
+    this.chartDataService.GetInstrumentObservable().subscribe(()=>{
       this.PrintInstrumentProperties();
       this.PrintChart();
     });
-    this.chartDataService.getIntervalObservable().subscribe(()=>{
+    this.chartDataService.GetIntervalObservable().subscribe(()=>{
       this.PrintInstrumentProperties();
       this.PrintChart();    
     });    
   }
-  DeleteChartData(){
-    this.chartDataService.DeleteChartData();
-    this.PrintChart();
-  }
+  
   UpdateIntrumentListener(){
     this.signalRService.UpdateChartListener().subscribe((DTO)=>{
-      console.log(DTO);
       let chartRec:ChartRecord = {
         name:DTO.name,
         interval:DTO.interval,
@@ -156,26 +164,54 @@ export class ManageChartsComponent implements AfterViewInit{
       {
         chartRec.data.push([DTO.data[i].time,DTO.data[i].data]);
       }
-      console.log(chartRec);
       this.chartDataService.AddChartRecords([chartRec]);
       this.AddCandles(chartRec);
     });
   }
+  UnsubscribedCategoriesListener(){
+    this.chartDataService.GetCategoriesObservable().subscribe((data:string[])=>{
+      this.unsubscribedCategories = data;
+    });
+  }
+  DeleteChartData(){
+    this.chartDataService.DeleteChartData();
+    this.PrintChart();
+  }
   GetSubscribedInstruments(){
     this.subscribedInstruments = this.chartDataService.GetSubscribedElements();
   }
-  PrintChart(){
-    const chartRecord = this.chartDataService.GetChartData();
-    if(chartRecord === undefined)
+  async GetUnsubscribedInstruments(event:Event){
+    const selectedCategory = (event.target as HTMLSelectElement).value;
+
+    if(selectedCategory==="1")
     {
-      console.error("Chart record undefined");
+      this.unlockUnsubscribedInstruments=false;  
     }
     else
     {
-      this.displayChart.updateSeries([{
-        name:'candles',
-        data:[]
-      }]);
+      const data=await this.signalRService.GetUnsubscribedInstrumentsByCat(selectedCategory);
+
+      this.unsubscribedInstruments=[];
+      for(let i = 0; i<data.length;i++)
+      {
+        const rec = data[i];
+        this.unsubscribedInstruments.push({name:rec.name,category:rec.category,ask:rec.ask.toString(),bid:rec.bid.toString(),leverage:rec.leverage.toString(),waitingResponse:false});
+      }
+
+       
+
+      this.unlockUnsubscribedInstruments=true;
+    }    
+  }
+ 
+  PrintChart(){
+    const chartRecord = this.chartDataService.GetChartData();
+    this.displayChart.updateSeries([{
+      name:'candles',
+      data:[]
+    }]);
+    if(chartRecord !== undefined)
+    {
       this.displayChart.appendData([{
         name:'candles',
         data:chartRecord.data
@@ -184,16 +220,24 @@ export class ManageChartsComponent implements AfterViewInit{
 
   }
   PrintInstrumentProperties(){
-    const instrument = this.subscribedInstruments.find(e=>e.name === this.chartDataService.getCurrentInstrument())
-    this.InstrumentInfo=[instrument.name,this.chartDataService.getCurrentInterval(),instrument.category,"Leverage: " + instrument.leverage];
+    
+    let instrument = this.subscribedInstruments.find(e=>e.name === this.chartDataService.GetCurrentInstrument());
+    if(instrument===undefined){
+
+      instrument = this.unsubscribedInstruments.find(e=>e.name=== this.chartDataService.GetCurrentInstrument());
+      this.InstrumentInfo=[instrument.name,this.chartDataService.GetCurrentInterval(),instrument.category,"Leverage: " + instrument.leverage]; 
+    }
+    else{
+      this.InstrumentInfo=[instrument.name,this.chartDataService.GetCurrentInterval(),instrument.category,"Leverage: " + instrument.leverage]; 
+    }
+      
   }
   SetCurrentInterval(interval:string){
-    this.chartDataService.updateCurrentInterval(interval);
+    this.chartDataService.UpdateCurrentInterval(interval);
   }
   SetCurrentInstrument(instrument:string){
-    this.chartDataService.updateCurrentInstrument(instrument);
+    this.chartDataService.UpdateCurrentInstrument(instrument);
   }
-
   UpdateCheckmark(index:number){
     for(let i=0;i<this.checkmarks.length;i++){
       this.checkmarks[i]=false;
@@ -201,31 +245,110 @@ export class ManageChartsComponent implements AfterViewInit{
     this.checkmarks[index]=true;
     
   }
-  LoadUnsubscribedChart(){
+  async LoadUnsubscribedChart(){
+    
+    if(this.LoadUnsubscribedForm.Instrument !== '1' && this.LoadUnsubscribedForm.Category !== '1'
+        && this.LoadUnsubscribedForm.Interval !== '1' && this.LoadUnsubscribedForm.Option !== 0)
+    {
+      let data:UpdateChartDTO;
+      switch(this.LoadUnsubscribedForm.Option)
+      {
+        case 1:        
+          this.LoadUnsubscribedForm.candlesNumber=0;
+          if(this.LoadUnsubscribedForm.SearchNumber!==0 && this.LoadUnsubscribedForm.SearchInterval!=='')
+          {
+            let token = localStorage.getItem("token");
+            if(token)
+            {
+              
+              let DTO:UpdateDataForm = {
+                Instrument:this.LoadUnsubscribedForm.Instrument,
+                Interval:this.LoadUnsubscribedForm.Interval,
+                Option: this.LoadUnsubscribedForm.Option,
+                SearchInterval:this.LoadUnsubscribedForm.SearchInterval,
+                SearchNumber:this.LoadUnsubscribedForm.SearchNumber,
+                candlesNumber:this.LoadUnsubscribedForm.candlesNumber
+              } ;
+              data = await this.signalRService.LoadUnsubscribedInstrument(DTO,token);              
+            }
+          }
+        break;
+        case 2:
+          this.LoadUnsubscribedForm.SearchNumber=0;
+          this.LoadUnsubscribedForm.SearchInterval='';
+
+          if(this.LoadUnsubscribedForm.candlesNumber!== 0)
+          {
+            let token = localStorage.getItem("token");
+            if(token)
+            {
+              let DTO:UpdateDataForm = {
+                Instrument:this.LoadUnsubscribedForm.Instrument,
+                Interval:this.LoadUnsubscribedForm.Interval,
+                Option: this.LoadUnsubscribedForm.Option,
+                SearchInterval:this.LoadUnsubscribedForm.SearchInterval,
+                SearchNumber:this.LoadUnsubscribedForm.SearchNumber,
+                candlesNumber:this.LoadUnsubscribedForm.candlesNumber
+              } ;
+              data = await this.signalRService.LoadUnsubscribedInstrument(DTO,token);
+            }
+          }
+        break;        
+      }
+      let chartRec:ChartRecord = {
+        name:data.name,
+        interval:data.interval,
+        data:[]
+      }
+      for(let i = 0 ; i<data.data.length;i++)
+      {
+        chartRec.data.push([data.data[i].time,data.data[i].data]);
+      }
+      this.chartDataService.AddChartRecords([chartRec]);
+      this.AddCandles(chartRec);
+      this.chartDataService.UpdateCurrentInstrument(data.name);
+      this.chartDataService.UpdateCurrentInterval(data.interval);
+    }
 
   }
   UpdateIntrumentData(){      
-    switch(this.UpdateInstrumentEnabledOption)
-    {
-      case 1:        
-        break;
-      case 2:
-        this.UpdateInstrumentForm.candlesNumber=0;
-      break;
-      case 3:
-        this.UpdateInstrumentForm.SearchNumber=0;
-        this.UpdateInstrumentForm.SearchInterval='';
-      break;
-      default:
-        console.log("empty record");
-      break;
-    }
 
-    let token = localStorage.getItem("token");
-    
-    if(token)
+    if(this.UpdateInstrumentForm.Instrument !=='1' && this.UpdateInstrumentForm.Interval !=='1')
     {
-      this.signalRService.UpdateIntrumentData(this.UpdateInstrumentForm,token);
+      console.log(this.UpdateInstrumentForm);
+      switch(this.UpdateInstrumentForm.Option)
+      {
+        case 1:        
+          break;
+        case 2:
+          this.UpdateInstrumentForm.candlesNumber=0;
+          if(this.UpdateInstrumentForm.SearchNumber!==0 && this.UpdateInstrumentForm.SearchInterval!=='')
+          {
+            let token = localStorage.getItem("token");
+            if(token)
+            {
+              this.signalRService.UpdateIntrumentData(this.UpdateInstrumentForm,token);
+            }
+          }
+        break;
+        case 3:
+          this.UpdateInstrumentForm.SearchNumber=0;
+          this.UpdateInstrumentForm.SearchInterval='';
+          if(this.UpdateInstrumentForm.candlesNumber!==0)
+          {
+            let token = localStorage.getItem("token");
+            if(token)
+            {
+              this.signalRService.UpdateIntrumentData(this.UpdateInstrumentForm,token);
+            }
+          }
+        break;
+        default:
+          console.log("empty record");
+        break;
+      }
+  
+      
     }
-  }
+  }    
 }

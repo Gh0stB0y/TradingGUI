@@ -64,8 +64,8 @@ export class ManageInstrumentsComponent implements OnInit {
   ngOnInit(): void {
     this.UnsubscribedInstrumentsListener();
     this.NewSubscribtionListener();
-    this.RemoveSubscribtionListener();
-    this.GetUnsubscribedItems();    
+    this.RemoveSubscribtionListener(); 
+this.GetUnsubscribedItems();    
   }
   
 
@@ -206,7 +206,7 @@ export class ManageInstrumentsComponent implements OnInit {
     this.UpdateBlankPage();
     this.UpdateCurrentPage();
     this.UpdateMultiPage();
-    this.chartDataService.UpdateElements(this.notSubscribedElements,this.subscribedElements);
+    this.chartDataService.UpdateElements(this.subscribedElements);
   }
   /////////////////////////////////////////////
   DeleteRecord(instrument:string) 
@@ -270,7 +270,7 @@ export class ManageInstrumentsComponent implements OnInit {
       }          
       this.GetCategories(this.notSubscribedUnfilteredElements);
       this.onSearchInput(this.filter);           
-      this.initialWaiting=false;      
+      this.initialWaiting=false; 
     });
   }
   

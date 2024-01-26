@@ -11,11 +11,14 @@ import {ChartRecordDTO} from 'src/Models/ManageCharts/ChartRecordDTO'
 import { UpdateDataForm } from 'src/Models/ManageCharts/UpdateDataForm';
 import { ChartRecord } from '../MainPanel/main-panel/chartData';
 import { UpdateChartDTO } from 'src/Models/ManageCharts/UpdateChartDTO';
+import { ChartDataService } from './chart-data.service';
+import { LoadUnsubscribedForm } from 'src/Models/ManageCharts/LoadUnsubscribedForm';
 @Injectable({
   providedIn: 'root'
 })
 export class SignalRService {
   
+
   private hubConnection: HubConnection;
   private TokenUpdateSubject: Subject<LoginResponseDTO> = new Subject<LoginResponseDTO>();
   private MessageSubject: Subject<MyMessageDTO> = new Subject<MyMessageDTO>();
@@ -25,7 +28,7 @@ export class SignalRService {
   private RemoveSubscribtionSubject: Subject<string> = new Subject<string>();
   private ChartRecordSubject: Subject<ChartRecordDTO> = new Subject<ChartRecordDTO>();
   private UpdateChartSubject: Subject<UpdateChartDTO> = new Subject<UpdateChartDTO>();
-  constructor() 
+  constructor(private charDataService:ChartDataService) 
   {
     // Set up the connection
     this.hubConnection = new HubConnectionBuilder()
@@ -73,6 +76,8 @@ export class SignalRService {
 
           const data:LoginResponseDTO = {sessionId:SessionId, token:Token}
           this.GetUnsubscribedInstruments(data);
+          this.GetUnsubscribedCategories();
+
         })
         .catch(err => console.error('Error while starting connection:', err));
 
@@ -97,11 +102,31 @@ export class SignalRService {
   GetUnsubscribedInstruments(credentials: LoginResponseDTO) {
     this.hubConnection.invoke('GetUnsubscribedInstruments', credentials);
   }
+  async GetUnsubscribedInstrumentsByCat(selectedCategory: string): Promise<SubscribtionTablesDTO[]> {
+    let items: SubscribtionTablesDTO[];
+    await this.hubConnection.invoke("GetUnsubscribedInstrumentsByCat",selectedCategory).then((data:SubscribtionTablesDTO[])=>{
+      items=data;    
+    });
+    return items;
+  }
   UpdateAvalInstrumentsList(credentials:LoginResponseDTO){
     this.hubConnection.invoke('UpdateAvalInstrumentsList',credentials);
   }
   UpdateIntrumentData(object:UpdateDataForm, token:string){
     this.hubConnection.invoke("UpdateIntrumentData",object,token);
+  }
+  async LoadUnsubscribedInstrument(object:UpdateDataForm, token:string):Promise<UpdateChartDTO>{
+    let SendData:UpdateChartDTO
+    await this.hubConnection.invoke("LoadUnsubscribedInstrument",object,token).then((data:UpdateChartDTO)=>{
+      SendData=data;
+    });
+    return SendData;
+  }
+  GetUnsubscribedCategories() {
+    this.hubConnection.invoke("UnsubscribedCategories").then((data:string[])=>  {
+      this.charDataService.UpdateUnsubscribedCategories(data);
+    });
+    
   }
   //Listeners
   LogoutListener():Observable<any>{
