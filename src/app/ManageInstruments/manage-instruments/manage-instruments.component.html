@@ -39,19 +39,19 @@
                   
                   <div class="collapse navbar-collapse h-100" id="navbarSupportedContent">
                     <form class="NameForm d-flex h-75 px-1" role="search">
-                        <input class="form-control me-1" type="search" placeholder="Search instrument" aria-label="Search" [(ngModel)]="filter.Name" name="NameSearch" (input)="onSearchInput(filter)">
+                        <input class="form-control me-1 p-2" type="search" placeholder="Search instrument" aria-label="Search" [(ngModel)]="filter.Name" name="NameSearch" (input)="onSearchInput(filter)">
                     </form>                                       
                     <form class="AskForm1 d-flex h-75 px-1" role="search">
-                        <input class="form-control me-1" type="search" placeholder="Min Ask" aria-label="Search" [(ngModel)]="filter.MinAsk" name="MinAskSearch" (input)="onSearchInput(filter)">
+                        <input class="form-control me-1 p-2" type="search" placeholder="Min Ask" aria-label="Search" [(ngModel)]="filter.MinAsk" name="MinAskSearch" (input)="onSearchInput(filter)">
                     </form>
                     <form class="AskForm1 d-flex h-75 px-1" role="search">
-                        <input class="form-control me-1" type="search" placeholder="Max Ask" aria-label="Search" [(ngModel)]="filter.MaxAsk" name="MaxAskSearch" (input)="onSearchInput(filter)">
+                        <input class="form-control me-1 p-2" type="search" placeholder="Max Ask" aria-label="Search" [(ngModel)]="filter.MaxAsk" name="MaxAskSearch" (input)="onSearchInput(filter)">
                     </form>
                     <form class="AskForm2 d-flex h-75 px-1" role="search">
-                        <input class="form-control me-1" type="search" placeholder="Min leverage" aria-label="Search" [(ngModel)]="filter.MinLeverage" name="MinLeverageSearch" (input)="onSearchInput(filter)">
+                        <input class="form-control me-1 p-2" type="search" placeholder="Min leverage" aria-label="Search" [(ngModel)]="filter.MinLeverage" name="MinLeverageSearch" (input)="onSearchInput(filter)">
                     </form>
                     <form class="AskForm2 d-flex h-75 px-1" role="search">
-                        <input class="form-control me-1" type="search" placeholder="Max leverage" aria-label="Search" [(ngModel)]="filter.MaxLeverage" name="MaxLeverageSearch" (input)="onSearchInput(filter)">
+                        <input class="form-control me-1 p-1" type="search" placeholder="Max leverage" aria-label="Search" [(ngModel)]="filter.MaxLeverage" name="MaxLeverageSearch" (input)="onSearchInput(filter)">
                     </form>
                     <ul class="navbar-nav px-2 h-75 me-auto">                      
                         <li class="nav-item dropdown">
@@ -124,9 +124,9 @@
                 </table>
                 <nav *ngIf="multipage[0]" aria-label="Page navigation example" class="m-0">
                     <ul class="pagination justify-content-center">
-                      <li class="page-item" style="width: 7%;"><a class="page-link text-center" (click)="ChangePage(true,currentPage[0]-1)">Previous</a></li>
+                      <li class="page-item" style="width: 7%;"><a class="page-link text-center px-2" (click)="ChangePage(true,currentPage[0]-1)">Previous</a></li>
                       <li class="page-item"><a class="page-link active text-center">{{currentPage[0]}}</a></li>
-                      <li class="page-item" style="width: 7%;"><a class="page-link text-center" (click)="ChangePage(true,currentPage[0]+1)">Next</a></li>
+                      <li class="page-item" style="width: 7%;"><a class="page-link text-center px-2" (click)="ChangePage(true,currentPage[0]+1)">Next</a></li>
                     </ul>
                   </nav>
             </div>

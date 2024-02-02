@@ -97,7 +97,6 @@ export class SignalRService {
   async IsProcessorInitialized():Promise<boolean>{    
     while(this.hubConnection.state !== "Connected")
     {
-      console.log('chuj');
       await new Promise(resolve => setTimeout(resolve, 500));
     }
     let response:boolean;

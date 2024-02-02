@@ -25,11 +25,11 @@
 
                 <div class="InputParameters">
     
-                    <div class="row h-100 px-2">
+                    <div class="row m-0 py-0 px-2" style="height: 40%;">
                         <div class="col h-100">
 
                             <p style="height: 5%">Instrument included in processor</p>
-                            <div class="h-25" style="overflow-y: auto;">                            
+                            <div class="h-50" style="overflow-y: auto;">                            
                                 <ul class="list-group h-100 w-100" >
                                     <li *ngFor="let instrument of subscribedInstruments" class="list-group-item">
                                         <input class="form-check-input me-1" type="checkbox" value="instrument.name" id="checkbox_{{instrument.name}}"
@@ -49,24 +49,24 @@
                                 </label>
                             </div>
 
-                            <div class="h-25 py-auto">
+                            <div class="py-auto">
     
                                 <div class="d-flex my-2">
                                     <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Long trend: </p>
-                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="longTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMinDays">
-                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="longTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMaxDays">  
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="longTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMinDays" min="0">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="longTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMaxDays" min="0">  
                                 </div>
                                                             
                                 <div class="d-flex my-2">
                                     <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Mid trend: </p>
-                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="midTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMinDays">
-                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="midTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMaxDays"> 
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="midTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMinDays" min="0"> 
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="midTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMaxDays" min="0"> 
                                 </div>
                                                             
                                 <div class="d-flex my-2">
                                     <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Short trend: </p>
-                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="shortTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMinDays">
-                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="shortTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMaxDays">
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="shortTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMinDays" min="0">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="shortTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMaxDays" min="0">
                                 </div>
     
                             </div>      
@@ -80,29 +80,58 @@
                                 </label>
                             </div>
 
-                            <div class="h-25 py-auto">
+                            <div class="py-auto">
     
                                 <div class="d-flex my-2">
                                     <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Long trend: </p>
-                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="longTrendMinCandles" [disabled]="checked!==1" [(ngModel)]="form.longTrendMinCandles">
-                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="longTrendMaxCandles" [disabled]="checked!==1" [(ngModel)]="form.longTrendMaxCandles">
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="longTrendMinCandles" [disabled]="checked!==1" [(ngModel)]="form.longTrendMinCandles" min="0">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="longTrendMaxCandles" [disabled]="checked!==1" [(ngModel)]="form.longTrendMaxCandles" min="0">
                                 </div>
     
                                 <div class="d-flex my-2">
                                     <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Mid trend: </p>
-                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="midTrendMinCandles" [disabled]="checked!==1" [(ngModel)]="form.midTrendMinCandles">
-                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="midTrendMaxCandles" [disabled]="checked!==1" [(ngModel)]="form.midTrendMaxCandles">
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="midTrendMinCandles" [disabled]="checked!==1" [(ngModel)]="form.midTrendMinCandles" min="0">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="midTrendMaxCandles" [disabled]="checked!==1" [(ngModel)]="form.midTrendMaxCandles" min="0">
                                 </div>
                                 
                                 <div class="d-flex my-2">
                                     <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Short trend: </p>
-                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="shortTrendMinCandles" [disabled]="checked!==1" [(ngModel)]="form.shortTrendMinCandles">
-                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="shortTrendMaxCandles" [disabled]="checked!==1" [(ngModel)]="form.shortTrendMaxCandles"> 
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="shortTrendMinCandles" [disabled]="checked!==1" [(ngModel)]="form.shortTrendMinCandles" min="0">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="shortTrendMaxCandles" [disabled]="checked!==1" [(ngModel)]="form.shortTrendMaxCandles" min="0"> 
                                 </div>   
 
                             </div>  
                             
                         </div>
+                    </div>
+                    <div class="row m-0 py-0 px-2" style="height: 60%;">
+                        
+                        <div class="d-flex m-0 py-1" style="height: 20%;">
+                            <p class="container d-flex align-items-center h-100 m-0" style="width: 20%;">Checking duration: </p>
+                            <input class="form-control ms-0 me-auto my-2 p-2" type="number" placeholder="Checking duration" aria-label="Search" style="width: 7%;" name="checkingDuration" [(ngModel)]="form.checkingDuration" min="0">      
+                            <p class="container d-flex align-items-center h-100 text-break mx-0 my-auto px-4" style="overflow-y:auto; width:73% ;" >{{actionDescribtion[0]}}</p>                         
+                        </div>
+                        <div class="d-flex m-0 py-1" style="height: 20%;">
+                            <p class="container d-flex align-items-center h-100 m-0" style="width: 20%;">Risk assessment: </p>
+                            <input class="form-control ms-0 me-auto my-2 p-2" type="number" placeholder="Risk assessment" aria-label="Search" style="width: 7%;" name="riskAssessment" [(ngModel)]="form.riskAssessment" min="0" max="5">      
+                            <p class="container d-flex align-items-center h-100 text-break mx-0 my-auto px-4" style="overflow-y:auto; width:73% ;" >{{actionDescribtion[1]}}</p>                         
+                        </div>
+                        <div class="d-flex m-0 py-1" style="height: 20%;">
+                            <p class="container d-flex align-items-center h-100 m-0" style="width: 20%;">Minimum pips income: </p>
+                            <input class="form-control ms-0 me-auto my-2 p-2" type="number" placeholder="Minimum pips income" aria-label="Search" style="width: 7%;" name="minPipsIncome" [(ngModel)]="form.minPipsIncome" min="0">      
+                            <p class="container d-flex align-items-center h-100 text-break mx-0 my-auto px-4" style="overflow-y:auto; width:73% ;" >{{actionDescribtion[2]}}</p>                         
+                        </div>
+                        <div class="d-flex m-0 py-1" style="height: 20%;">
+                            <p class="container d-flex align-items-center h-100 m-0" style="width: 20%;">Desired pips income: </p>
+                            <input class="form-control ms-0 me-auto my-2 p-2" type="number" placeholder="Desired pips income" aria-label="Search" style="width: 7%;" name="desiredPipsIncome" [(ngModel)]="form.desiredPipsIncome" min="0">      
+                            <p class="container d-flex align-items-center h-100 text-break mx-0 my-auto px-4" style="overflow-y:auto; width:73% ;" >{{actionDescribtion[3]}}</p>                         
+                        </div>
+                        <div class="d-flex m-0 py-1" style="height: 20%;">
+                            <p class="container d-flex align-items-center h-100 m-0" style="width: 20%;">Stop loss pips: </p>
+                            <input class="form-control ms-0 me-auto my-2 p-2" type="number" placeholder="Stop loss pips" aria-label="Search" style="width: 7%;" name="stopLossPips" [(ngModel)]="form.stopLossPips" min="0">      
+                            <p class="container d-flex align-items-center h-100 text-break mx-0 my-auto px-4" style="overflow-y:auto; width:73% ;" >{{actionDescribtion[4]}}</p>                         
+                        </div>
+                        
                     </div>
     
                 </div>                

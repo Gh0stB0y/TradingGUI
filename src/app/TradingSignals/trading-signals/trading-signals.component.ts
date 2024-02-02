@@ -3,7 +3,9 @@ import { InitializeProcessorDTO } from 'src/Models/InitializeProcessorDTO';
 import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
 import { ChartDataService } from 'src/app/Services/chart-data.service';
 import { SignalRService } from 'src/app/Services/signalr.service';
-
+import { describtions } from '../describtions';
+import { MessageBoxService } from 'src/app/Services/message-box.service';
+import { MyMessageDTO } from 'src/Models/MyMessageDTO';
 @Component({
   selector: 'app-trading-signals',
   templateUrl: './trading-signals.component.html',
@@ -15,27 +17,43 @@ export class TradingSignalsComponent implements AfterViewInit{
   processorInitialized:boolean=false;
   waitingForResponse:boolean=true;
   checked:number=0;
-
+  actionDescribtion:string[]=[];
   subscribedInstruments:SubscribtionTablesItem[]=[];
 
   form:InitializeProcessorDTO = new InitializeProcessorDTO();
   
 
-  constructor(private signalRService:SignalRService, private chartDataService:ChartDataService){
+  constructor(private signalRService:SignalRService, private chartDataService:ChartDataService, private messageBoxService:MessageBoxService){
     this.GetSubscribedInstruments();    
   }
 
   async ngAfterViewInit(): Promise<void> {
     this.processorInitialized = await this.signalRService.IsProcessorInitialized();
     this.waitingForResponse = false;
+    this.actionDescribtion = describtions;
   }
   InitializeProcessor() {
     console.log(this.form);
-    let token = localStorage.getItem("token");
-    if(token)
+    let formCorrect:boolean = this.CheckFormValues();
+    if(formCorrect === true)
     {
-      this.signalRService.InitializeProcessor(this.form,token);
-    }    
+      let token = localStorage.getItem("token");
+      if(token)
+      {
+        this.signalRService.InitializeProcessor(this.form,token);
+      }    
+    }
+    else
+    {
+      let msg:MyMessageDTO={
+        msgType:"Error",
+        msgVal:"Jebac disa"
+      };
+      this.messageBoxService.SendInternalMessage(msg);
+    }
+
+
+    
   }
   ChooseOption(option: number) {
     this.form.option=option;
@@ -97,5 +115,13 @@ export class TradingSignalsComponent implements AfterViewInit{
         this.subscribedInstruments.splice(index,1);
       }
     });
+  }
+  CheckFormValues():boolean{
+
+
+
+
+
+    return false;
   }
 }

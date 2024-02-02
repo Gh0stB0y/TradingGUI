@@ -2,7 +2,7 @@ import { NgFor } from '@angular/common';
 import { Token } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { error } from 'jquery';
+import { data, error } from 'jquery';
 import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
 import { MyMessageDTO } from 'src/Models/MyMessageDTO';
 import { SubscribeRequestDTO } from 'src/Models/SubscribeInstruments/SubscribeRequestDTO';
@@ -14,6 +14,7 @@ import {ElementRef, ViewChild,HostListener  } from '@angular/core';
 import { ChartRecord } from './chartData';
 import { ChartDataService } from 'src/app/Services/chart-data.service';
 import { ManageChartsComponent } from 'src/app/ManageCharts/manage-charts/manage-charts.component';
+import { MessageBoxService } from 'src/app/Services/message-box.service';
 @Component({
   selector: 'app-main-panel',
   templateUrl:'./main-panel.component.html',
@@ -28,7 +29,8 @@ export class MainPanelComponent implements OnInit {
     this.chartDataService.SaveDataToStorage();
   }
   
-  constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService, private chartDataService:ChartDataService) {
+  constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService, 
+                private chartDataService:ChartDataService, private messageBoxService:MessageBoxService) {
     this.chartDataService.DownloadDataFromStorage();
   }
   
@@ -76,6 +78,7 @@ export class MainPanelComponent implements OnInit {
            this.NewSubscribtionListener();
            this.RemoveSubscribtionListener();
            this.ChartRecordListener();
+           this.InternalMessageListener();
         },
         error:(err) =>{
           console.error(err.error);
@@ -146,6 +149,11 @@ export class MainPanelComponent implements OnInit {
           this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
         }, 0);
       }
+    });
+  }
+  InternalMessageListener():void{
+    this.messageBoxService.InternalMessageObservable().subscribe((data)=>{
+      this.messages.push(data);
     });
   }
   LogoutListener():void{

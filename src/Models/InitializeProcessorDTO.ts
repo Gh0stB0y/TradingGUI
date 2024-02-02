@@ -1,5 +1,6 @@
 export class InitializeProcessorDTO{
     Instruments:string[] = [];
+    option:number = 0;
 
     longTrendMaxDays:number = 0;
     midTrendMaxDays:number = 0;
@@ -17,5 +18,9 @@ export class InitializeProcessorDTO{
     midTrendMaxCandles:number = 0;
     shortTrendMaxCandles:number = 0;
 
-    option:number = 0;
+    checkingDuration:number = 0;
+    riskAssessment:number = 0;
+    minPipsIncome:number = 0;
+    desiredPipsIncome:number = 0;
+    stopLossPips:number = 0;
 }
