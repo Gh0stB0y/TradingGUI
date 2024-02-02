@@ -1,1 +1,125 @@
-<p>trading-signals works!</p>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <link href="../../../../css/main.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>      
+    </head>
+    
+<body>
+
+    <div *ngIf="waitingForResponse" class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 100%;">
+  
+        <div class="spinner-border " style="width: 7vw; height: 7vw;" role="status">
+        </div>
+        <p class="p-3 fs-3">Retrieving session data, please wait...</p>
+    </div>
+
+
+    <div *ngIf="!waitingForResponse" class="h-100 mh-100 m-0">
+
+        <div *ngIf="!processorInitialized" class="h-100 mh-100 m-0">
+            <form class="h-100" (ngSubmit)="InitializeProcessor()"  #updateForm="ngForm">
+        
+                <div class="Header">
+                    <h2 class="text-center h-50">Set up initial parameters</h2>
+                </div>
+
+                <div class="InputParameters">
+    
+                    <div class="row h-100 px-2">
+                        <div class="col h-100">
+
+                            <p style="height: 5%">Instrument included in processor</p>
+                            <div class="h-25" style="overflow-y: auto;">                            
+                                <ul class="list-group h-100 w-100" >
+                                    <li *ngFor="let instrument of subscribedInstruments" class="list-group-item">
+                                        <input class="form-check-input me-1" type="checkbox" value="instrument.name" id="checkbox_{{instrument.name}}"
+                                            (change)="CheckboxChanged(instrument.name)">
+                                        <label class="form-check-label" for="firstCheckbox">{{instrument.name}}</label>
+                                    </li>                                    
+                                </ul>
+                            </div>
+                            
+                        </div>
+                        <div class="col h-100">
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" (click)="ChooseOption(0)" checked>
+                                <label class="form-check-label" for="flexRadioDefault1">
+                                    Processing scope - days
+                                </label>
+                            </div>
+
+                            <div class="h-25 py-auto">
+    
+                                <div class="d-flex my-2">
+                                    <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Long trend: </p>
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="longTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMinDays">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="longTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMaxDays">  
+                                </div>
+                                                            
+                                <div class="d-flex my-2">
+                                    <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Mid trend: </p>
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="midTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMinDays">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="midTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMaxDays"> 
+                                </div>
+                                                            
+                                <div class="d-flex my-2">
+                                    <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Short trend: </p>
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="shortTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMinDays">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="shortTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMaxDays">
+                                </div>
+    
+                            </div>      
+                        </div>
+                        <div class="col h-100">
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" (click)="ChooseOption(1)">
+                                <label class="form-check-label" for="flexRadioDefault2">
+                                    Processing scope - candles
+                                </label>
+                            </div>
+
+                            <div class="h-25 py-auto">
+    
+                                <div class="d-flex my-2">
+                                    <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Long trend: </p>
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="longTrendMinCandles" [disabled]="checked!==1" [(ngModel)]="form.longTrendMinCandles">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="longTrendMaxCandles" [disabled]="checked!==1" [(ngModel)]="form.longTrendMaxCandles">
+                                </div>
+    
+                                <div class="d-flex my-2">
+                                    <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Mid trend: </p>
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="midTrendMinCandles" [disabled]="checked!==1" [(ngModel)]="form.midTrendMinCandles">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="midTrendMaxCandles" [disabled]="checked!==1" [(ngModel)]="form.midTrendMaxCandles">
+                                </div>
+                                
+                                <div class="d-flex my-2">
+                                    <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Short trend: </p>
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="shortTrendMinCandles" [disabled]="checked!==1" [(ngModel)]="form.shortTrendMinCandles">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="shortTrendMaxCandles" [disabled]="checked!==1" [(ngModel)]="form.shortTrendMaxCandles"> 
+                                </div>   
+
+                            </div>  
+                            
+                        </div>
+                    </div>
+    
+                </div>                
+                <div class="StartButton d-flex">
+                    <button type="submit" class="btn btn-primary m-auto p-auto fs-4" style="width: 15%; height: 75%;">Initialize</button>
+                </div>
+
+            </form>
+        </div>
+    
+        <div *ngIf="processorInitialized" class="container h-100 w-100">
+        
+        
+        </div>    
+
+    </div>
+   
+
+
+</body>

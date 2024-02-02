@@ -33,7 +33,7 @@ export class MainPanelComponent implements OnInit {
   }
   
   accountId:string = "";
-  currentNavbar:number=0;
+  currentNavbar:number=2;
   elements:SubscribedItemDTO[]=[];
   initialWaiting: boolean =true;
   intervals:string [] =['M1', 'M5', 'M15','M30', 'H1', 'H4', 'D1', 'W1'];

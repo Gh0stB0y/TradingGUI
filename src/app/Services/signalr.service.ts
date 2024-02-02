@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { Callbacks, data, error } from 'jquery';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, delay } from 'rxjs';
 import { LoginResponseDTO } from 'src/Models/LoginResponseDTO';
 import { MyMessageDTO } from 'src/Models/MyMessageDTO';
 import { SubscribeRequestDTO } from 'src/Models/SubscribeInstruments/SubscribeRequestDTO';
@@ -13,6 +13,7 @@ import { ChartRecord } from '../MainPanel/main-panel/chartData';
 import { UpdateChartDTO } from 'src/Models/ManageCharts/UpdateChartDTO';
 import { ChartDataService } from './chart-data.service';
 import { LoadUnsubscribedForm } from 'src/Models/ManageCharts/LoadUnsubscribedForm';
+import { InitializeProcessorDTO } from 'src/Models/InitializeProcessorDTO';
 @Injectable({
   providedIn: 'root'
 })
@@ -93,6 +94,21 @@ export class SignalRService {
     this.hubConnection.invoke("Logout");
   }
   // Method to send a message to the server
+  async IsProcessorInitialized():Promise<boolean>{    
+    while(this.hubConnection.state !== "Connected")
+    {
+      console.log('chuj');
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    let response:boolean;
+    await this.hubConnection.invoke('IsProcessorInitialiazed').then((data:boolean)=>{
+      response=data
+    });
+    return response;
+  }
+  InitializeProcessor(form:InitializeProcessorDTO,token:string){
+    this.hubConnection.invoke('InitializeProcessor',form,token);
+  }
   SubscribeInstrument(instrument: SubscribeRequestDTO) {
     this.hubConnection.invoke('SubscribeInstrument', instrument);
   }

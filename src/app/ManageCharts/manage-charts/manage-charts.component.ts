@@ -178,8 +178,9 @@ export class ManageChartsComponent implements AfterViewInit{
     this.PrintChart();
   }
   GetSubscribedInstruments(){
-    this.subscribedInstruments = this.chartDataService.GetSubscribedElements();
+    this.subscribedInstruments = this.chartDataService.GetSubscribedElements();           
   }
+  
   async GetUnsubscribedInstruments(event:Event){
     const selectedCategory = (event.target as HTMLSelectElement).value;
 
