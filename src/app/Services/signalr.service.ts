@@ -14,12 +14,13 @@ import { UpdateChartDTO } from 'src/Models/ManageCharts/UpdateChartDTO';
 import { ChartDataService } from './chart-data.service';
 import { LoadUnsubscribedForm } from 'src/Models/ManageCharts/LoadUnsubscribedForm';
 import { InitializeProcessorDTO } from 'src/Models/InitializeProcessorDTO';
+import { ProcessedInstrumentDTO } from 'src/Models/ProcessedInstrumentDTO';
+import { UpdateProcessedInstrumentDTO } from 'src/Models/UpdateProcessedInstrumentDTO';
 @Injectable({
   providedIn: 'root'
 })
 export class SignalRService {
   
-
   private hubConnection: HubConnection;
   private TokenUpdateSubject: Subject<LoginResponseDTO> = new Subject<LoginResponseDTO>();
   private MessageSubject: Subject<MyMessageDTO> = new Subject<MyMessageDTO>();
@@ -94,19 +95,30 @@ export class SignalRService {
     this.hubConnection.invoke("Logout");
   }
   // Method to send a message to the server
-  async IsProcessorInitialized():Promise<boolean>{    
+  async IsProcessorInitialized(token:string):Promise<boolean>{    
     while(this.hubConnection.state !== "Connected")
     {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
     let response:boolean;
-    await this.hubConnection.invoke('IsProcessorInitialiazed').then((data:boolean)=>{
-      response=data
+    await this.hubConnection.invoke('IsProcessorInitialiazed',token).then((data:boolean)=>{
+      response=data;
     });
     return response;
   }
-  InitializeProcessor(form:InitializeProcessorDTO,token:string){
-    this.hubConnection.invoke('InitializeProcessor',form,token);
+  async InitializeProcessor(form:InitializeProcessorDTO,token:string):Promise<boolean>{
+    let answer:boolean;
+    await this.hubConnection.invoke('InitializeProcessor',form,token).then((data:boolean)=>{
+      answer = data;
+    });  
+    return answer;
+  }
+  async GetProcessorValues(token:string):Promise<ProcessedInstrumentDTO[]>{
+    let answer:ProcessedInstrumentDTO[];
+    await this.hubConnection.invoke('GetProcessorValues',token).then((data:ProcessedInstrumentDTO[])=>{
+      answer=data;
+    });
+    return answer;
   }
   SubscribeInstrument(instrument: SubscribeRequestDTO) {
     this.hubConnection.invoke('SubscribeInstrument', instrument);
@@ -137,11 +149,17 @@ export class SignalRService {
     });
     return SendData;
   }
+  async UpdateProcessedInstrument(token: string,updateData:UpdateProcessedInstrumentDTO) :Promise<ProcessedInstrumentDTO> {
+    let answer;
+    await this.hubConnection.invoke("UpdateProcessedInstrument",token,updateData).then((data:ProcessedInstrumentDTO)=>{
+      answer = data;
+    });
+    return answer;
+  }
   GetUnsubscribedCategories() {
     this.hubConnection.invoke("UnsubscribedCategories").then((data:string[])=>  {
       this.charDataService.UpdateUnsubscribedCategories(data);
-    });
-    
+    });    
   }
   //Listeners
   LogoutListener():Observable<any>{

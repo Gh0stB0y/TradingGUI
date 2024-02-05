@@ -154,6 +154,11 @@ export class MainPanelComponent implements OnInit {
   InternalMessageListener():void{
     this.messageBoxService.InternalMessageObservable().subscribe((data)=>{
       this.messages.push(data);
+      if (this.messageContainer) {
+        setTimeout(() => {
+          this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+        }, 0);
+      }
     });
   }
   LogoutListener():void{
