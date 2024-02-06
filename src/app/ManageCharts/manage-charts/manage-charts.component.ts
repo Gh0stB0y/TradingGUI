@@ -42,6 +42,10 @@ export type ChartOptions = {
 export class ManageChartsComponent implements AfterViewInit{
   @ViewChild("chart") chart: ElementRef; 
  
+  checkmarks:boolean[]=[false,false,false];
+  displayChart:ApexCharts;
+  InstrumentInfo:string[]=["","","",""];
+  intervals:string[]=["M1","M5","M15","M30","H1","H4","D1","W1","MN1"];
   options:any = {      
     chart: {
       height:'100%',
@@ -74,9 +78,6 @@ export class ManageChartsComponent implements AfterViewInit{
       
     }
   };
-  displayChart:ApexCharts;
-  InstrumentInfo:string[]=["","","",""];
-
   UpdateInstrumentForm:UpdateDataForm = {
     Instrument:'1',
     Interval:'1',
@@ -94,14 +95,11 @@ export class ManageChartsComponent implements AfterViewInit{
     SearchNumber:0,
     candlesNumber:0 
   }
-
-  checkmarks:boolean[]=[false,false,false];
-  intervals:string[]=["M1","M5","M15","M30","H1","H4","D1","W1","MN1"];
   subscribedInstruments:SubscribtionTablesItem[]=[];
-  
-  unsubscribedInstruments:SubscribtionTablesItem[]=[];
-  unsubscribedCategories:string[]=[];
   unlockUnsubscribedInstruments:boolean=false;
+  unsubscribedCategories:string[]=[];
+  unsubscribedInstruments:SubscribtionTablesItem[]=[];
+  
   constructor(private signalRService:SignalRService, private chartDataService:ChartDataService){
     this.GetSubscribedInstruments(); 
   }
@@ -114,6 +112,7 @@ export class ManageChartsComponent implements AfterViewInit{
     this.PrintInstrumentProperties();
     this.PrintChart();
   }
+
   AddCandles(data:ChartRecord){
     if(data.name === this.chartDataService.GetCurrentInstrument() && data.interval === this.chartDataService.GetCurrentInterval())
     {
@@ -124,55 +123,6 @@ export class ManageChartsComponent implements AfterViewInit{
       }]);  
     }        
   }
-  initChart() {
-    this.displayChart = new ApexCharts(this.chart.nativeElement, this.options);
-    this.displayChart.render();
-  }
-  ChartRecordListener() {
-    this.signalRService.ChartRecordListener().subscribe((chartRec)=>{
-      let newRec:ChartRecord = 
-      {
-        name:chartRec.name,
-        interval:chartRec.interval,
-        data:
-        [
-          [chartRec.time,chartRec.data]
-        ]
-      }
-      this.AddCandles(newRec);
-    });
-  }
-  ChartUpdateListener(){
-    this.chartDataService.GetInstrumentObservable().subscribe(()=>{
-      this.PrintInstrumentProperties();
-      this.PrintChart();
-    });
-    this.chartDataService.GetIntervalObservable().subscribe(()=>{
-      this.PrintInstrumentProperties();
-      this.PrintChart();    
-    });    
-  }
-  
-  UpdateIntrumentListener(){
-    this.signalRService.UpdateChartListener().subscribe((DTO)=>{
-      let chartRec:ChartRecord = {
-        name:DTO.name,
-        interval:DTO.interval,
-        data:[]
-      }
-      for(let i = 0 ; i<DTO.data.length;i++)
-      {
-        chartRec.data.push([DTO.data[i].time,DTO.data[i].data]);
-      }
-      this.chartDataService.AddChartRecords([chartRec]);
-      this.AddCandles(chartRec);
-    });
-  }
-  UnsubscribedCategoriesListener(){
-    this.chartDataService.GetCategoriesObservable().subscribe((data:string[])=>{
-      this.unsubscribedCategories = data;
-    });
-  }
   DeleteChartData(){
     this.chartDataService.DeleteChartData();
     this.PrintChart();
@@ -180,7 +130,6 @@ export class ManageChartsComponent implements AfterViewInit{
   GetSubscribedInstruments(){
     this.subscribedInstruments = this.chartDataService.GetSubscribedElements();           
   }
-  
   async GetUnsubscribedInstruments(event:Event){
     const selectedCategory = (event.target as HTMLSelectElement).value;
 
@@ -204,47 +153,9 @@ export class ManageChartsComponent implements AfterViewInit{
       this.unlockUnsubscribedInstruments=true;
     }    
   }
- 
-  PrintChart(){
-    const chartRecord = this.chartDataService.GetChartData();
-    this.displayChart.updateSeries([{
-      name:'candles',
-      data:[]
-    }]);
-    if(chartRecord !== undefined)
-    {
-      this.displayChart.appendData([{
-        name:'candles',
-        data:chartRecord.data
-      }]);
-    }
-
-  }
-  PrintInstrumentProperties(){
-    
-    let instrument = this.subscribedInstruments.find(e=>e.name === this.chartDataService.GetCurrentInstrument());
-    if(instrument===undefined){
-
-      instrument = this.unsubscribedInstruments.find(e=>e.name=== this.chartDataService.GetCurrentInstrument());
-      this.InstrumentInfo=[instrument.name,this.chartDataService.GetCurrentInterval(),instrument.category,"Leverage: " + instrument.leverage]; 
-    }
-    else{
-      this.InstrumentInfo=[instrument.name,this.chartDataService.GetCurrentInterval(),instrument.category,"Leverage: " + instrument.leverage]; 
-    }
-      
-  }
-  SetCurrentInterval(interval:string){
-    this.chartDataService.UpdateCurrentInterval(interval);
-  }
-  SetCurrentInstrument(instrument:string){
-    this.chartDataService.UpdateCurrentInstrument(instrument);
-  }
-  UpdateCheckmark(index:number){
-    for(let i=0;i<this.checkmarks.length;i++){
-      this.checkmarks[i]=false;
-    }
-    this.checkmarks[index]=true;
-    
+  initChart() {
+    this.displayChart = new ApexCharts(this.chart.nativeElement, this.options);
+    this.displayChart.render();
   }
   async LoadUnsubscribedChart(){
     
@@ -312,6 +223,47 @@ export class ManageChartsComponent implements AfterViewInit{
     }
 
   }
+  PrintChart(){
+    const chartRecord = this.chartDataService.GetChartData();
+    this.displayChart.updateSeries([{
+      name:'candles',
+      data:[]
+    }]);
+    if(chartRecord !== undefined)
+    {
+      this.displayChart.appendData([{
+        name:'candles',
+        data:chartRecord.data
+      }]);
+    }
+
+  }
+  PrintInstrumentProperties(){
+    
+    let instrument = this.subscribedInstruments.find(e=>e.name === this.chartDataService.GetCurrentInstrument());
+    if(instrument===undefined){
+
+      instrument = this.unsubscribedInstruments.find(e=>e.name=== this.chartDataService.GetCurrentInstrument());
+      this.InstrumentInfo=[instrument.name,this.chartDataService.GetCurrentInterval(),instrument.category,"Leverage: " + instrument.leverage]; 
+    }
+    else{
+      this.InstrumentInfo=[instrument.name,this.chartDataService.GetCurrentInterval(),instrument.category,"Leverage: " + instrument.leverage]; 
+    }
+      
+  }  
+  SetCurrentInterval(interval:string){
+    this.chartDataService.UpdateCurrentInterval(interval);
+  }
+  SetCurrentInstrument(instrument:string){
+    this.chartDataService.UpdateCurrentInstrument(instrument);
+  }
+  UpdateCheckmark(index:number){
+    for(let i=0;i<this.checkmarks.length;i++){
+      this.checkmarks[i]=false;
+    }
+    this.checkmarks[index]=true;
+    
+  }
   UpdateIntrumentData(){      
 
     if(this.UpdateInstrumentForm.Instrument !=='1' && this.UpdateInstrumentForm.Interval !=='1')
@@ -351,5 +303,51 @@ export class ManageChartsComponent implements AfterViewInit{
   
       
     }
-  }    
+  }   
+  
+  ///////////////LISTENERS//////////////////
+  ChartRecordListener() {
+    this.signalRService.ChartRecordListener().subscribe((chartRec)=>{
+      let newRec:ChartRecord = 
+      {
+        name:chartRec.name,
+        interval:chartRec.interval,
+        data:
+        [
+          [chartRec.time,chartRec.data]
+        ]
+      }
+      this.AddCandles(newRec);
+    });
+  }
+  ChartUpdateListener(){
+    this.chartDataService.GetInstrumentObservable().subscribe(()=>{
+      this.PrintInstrumentProperties();
+      this.PrintChart();
+    });
+    this.chartDataService.GetIntervalObservable().subscribe(()=>{
+      this.PrintInstrumentProperties();
+      this.PrintChart();    
+    });    
+  }
+  UnsubscribedCategoriesListener(){
+    this.chartDataService.GetCategoriesObservable().subscribe((data:string[])=>{
+      this.unsubscribedCategories = data;
+    });
+  }
+  UpdateIntrumentListener(){
+    this.signalRService.UpdateChartListener().subscribe((DTO)=>{
+      let chartRec:ChartRecord = {
+        name:DTO.name,
+        interval:DTO.interval,
+        data:[]
+      }
+      for(let i = 0 ; i<DTO.data.length;i++)
+      {
+        chartRec.data.push([DTO.data[i].time,DTO.data[i].data]);
+      }
+      this.chartDataService.AddChartRecords([chartRec]);
+      this.AddCandles(chartRec);
+    });
+  }
 }

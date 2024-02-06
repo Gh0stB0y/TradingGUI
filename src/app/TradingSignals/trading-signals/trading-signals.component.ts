@@ -16,16 +16,26 @@ import { UpdateProcessedInstrumentDTO } from 'src/Models/UpdateProcessedInstrume
 })
 export class TradingSignalsComponent implements AfterViewInit{
 
-  processorInitialized:boolean=false;
-  waitingForResponse:boolean=true;
-  checked:number=0;
   actionDescribtion:string[]=[];
-  subscribedInstruments:SubscribtionTablesItem[]=[];
-  processorInstrumentValues:ProcessedInstrumentDTO[]=[];
-
-  currentViewInstrument:string='1';
+  checked:number=0;
   currentUpdateInstrument:string='1';
-
+  currentViewInstrument:string='1';
+  form:InitializeProcessorDTO = new InitializeProcessorDTO();
+  isProcessorActive:boolean = false;
+  processorActive:boolean = false;
+  processedInstruments:ProcessedInstrumentDTO;
+  processorInstrumentValues:ProcessedInstrumentDTO[]=[];
+  processorInitialized:boolean=false;
+  processorStatus:string = "Not active";
+  subscribedInstruments:SubscribtionTablesItem[]=[];
+  UpdateInstrumentValues:UpdateProcessedInstrumentDTO={
+    name:'',
+    checkingDuration:0,
+    riskAssessment:0,
+    minPipsIncome:0,
+    desiredPipsIncome:0,
+    stopLossPips:0
+  };
   ViewInstrumentValues:ProcessedInstrumentDTO={
     name:'',
     category:'',
@@ -37,22 +47,11 @@ export class TradingSignalsComponent implements AfterViewInit{
     desiredPipsIncome:0,
     stopLossPips:0
   };
-  UpdateInstrumentValues:UpdateProcessedInstrumentDTO={
-    name:'',
-    checkingDuration:0,
-    riskAssessment:0,
-    minPipsIncome:0,
-    desiredPipsIncome:0,
-    stopLossPips:0
-  };
-
-  processorActive:boolean = true;
-
-  form:InitializeProcessorDTO = new InitializeProcessorDTO();
-  processedInstruments:ProcessedInstrumentDTO;
+  waitingForResponse:boolean=true;
 
   constructor(private signalRService:SignalRService, private chartDataService:ChartDataService, private messageBoxService:MessageBoxService){
     this.GetSubscribedInstruments();    
+    this.ActiveProcessorListener();
   }
 
   async ngAfterViewInit(): Promise<void> 
@@ -66,95 +65,15 @@ export class TradingSignalsComponent implements AfterViewInit{
     this.actionDescribtion = describtions;
     if(this.processorInitialized === true)
       await this.GetProcessorValues();
+    
   }
-  async InitializeProcessor() {
-    let formCorrect:boolean = this.CheckFormValues();
-    if(formCorrect === true)
-    {
-      let token = localStorage.getItem("token");
-      if(token)
-      {
-        try{
-          this.processorInitialized = await this.signalRService.InitializeProcessor(this.form,token);
-          await this.GetProcessorValues();
-        }
-        catch{
-          let msg:MyMessageDTO={
-            msgType:"Error",
-            msgVal:"Initialize processor: error while initializing"
-          }
-          this.messageBoxService.SendInternalMessage(msg);
-        }        
-      }    
-    }
-  }
-  ChooseOption(option: number) {
-    this.form.option=option;
-    this.checked=option;
-    if(this.form.option === 0){
-      this.form.longTrendMaxCandles=0;
-      this.form.longTrendMinCandles=0;
-      this.form.midTrendMaxCandles=0;
-      this.form.midTrendMinCandles=0;
-      this.form.shortTrendMaxCandles=0;
-      this.form.shortTrendMinCandles=0;
-    }
-    if(this.form.option === 1){
-      this.form.longTrendMaxDays=0;
-      this.form.longTrendMinDays=0;
-      this.form.midTrendMaxDays=0;
-      this.form.midTrendMinDays=0;
-      this.form.shortTrendMaxDays=0;
-      this.form.shortTrendMinDays=0;
-    }
-  }
-  async GetProcessorValues() {
+  
+  ActivateProcessor() {
     let token = localStorage.getItem("token");
     if(token)
     {
-      try
-      {
-        this.processorInstrumentValues = await this.signalRService.GetProcessorValues(token);
-      }
-      catch(error)
-      {
-        let msg:MyMessageDTO={
-          msgType:"Error",
-          msgVal:error
-        };
-        this.messageBoxService.SendInternalMessage(msg);
-      }
+      this.signalRService.ActivateProcessor(token);
     }    
-  }
-  GetSubscribedInstruments(){
-    this.subscribedInstruments = this.chartDataService.GetSubscribedElements();           
-  }
-  SetViewInstrument(){
-    let index = this.processorInstrumentValues.findIndex(e=>e.name === this.currentViewInstrument);
-    if(index !== -1)
-    {
-      this.ViewInstrumentValues.name=this.processorInstrumentValues[index].name;
-      this.ViewInstrumentValues.category=this.processorInstrumentValues[index].category;
-      this.ViewInstrumentValues.leverage=this.processorInstrumentValues[index].leverage;
-      this.ViewInstrumentValues.currentSpread=this.processorInstrumentValues[index].currentSpread;
-      this.ViewInstrumentValues.checkingDuration=this.processorInstrumentValues[index].checkingDuration;
-      this.ViewInstrumentValues.riskAssessment=this.processorInstrumentValues[index].riskAssessment;
-      this.ViewInstrumentValues.minPipsIncome=this.processorInstrumentValues[index].minPipsIncome;
-      this.ViewInstrumentValues.desiredPipsIncome=this.processorInstrumentValues[index].desiredPipsIncome;
-      this.ViewInstrumentValues.stopLossPips=this.processorInstrumentValues[index].stopLossPips;
-    }
-    else
-    {
-      this.ViewInstrumentValues.name='';
-      this.ViewInstrumentValues.category='';
-      this.ViewInstrumentValues.leverage=0;
-      this.ViewInstrumentValues.currentSpread=0;
-      this.ViewInstrumentValues.checkingDuration=0;
-      this.ViewInstrumentValues.riskAssessment=0;
-      this.ViewInstrumentValues.minPipsIncome=0;
-      this.ViewInstrumentValues.desiredPipsIncome=0;
-      this.ViewInstrumentValues.stopLossPips=0;
-    }
   }
   CheckboxChanged(instrument:string){
 
@@ -167,32 +86,6 @@ export class TradingSignalsComponent implements AfterViewInit{
     }
 
     console.log(this.form.Instruments);
-  }
-  NewSubscribtionListener():void{
-    this.signalRService.NewSubscribtionListener().subscribe((instrument)=>
-    {
-      let index = this.subscribedInstruments.findIndex(e=>e.name === instrument.name);
-      if(index === -1){
-
-        const obj:SubscribtionTablesItem ={
-          name:instrument.name,
-          category:instrument.category,
-          ask:instrument.ask.toString(),
-          bid:instrument.bid.toString(),
-          leverage:instrument.leverage.toString(),
-          waitingResponse:false
-        } 
-        this.subscribedInstruments.push(obj);
-      }
-    });
-  }
-  RemoveSubscribtionListener():void{
-    this.signalRService.RemoveSubscribtionListener().subscribe((instrument)=>{
-      let index = this.subscribedInstruments.findIndex(e=>e.name === instrument);
-      if(index !== -1){
-        this.subscribedInstruments.splice(index,1);
-      }
-    });
   }
   CheckFormValues():boolean{
 
@@ -497,6 +390,135 @@ export class TradingSignalsComponent implements AfterViewInit{
     this.messageBoxService.SendInternalMessage(msg);
     return true;
   }
+  ChooseOption(option: number) {
+    this.form.option=option;
+    this.checked=option;
+    if(this.form.option === 0){
+      this.form.longTrendMaxCandles=0;
+      this.form.longTrendMinCandles=0;
+      this.form.midTrendMaxCandles=0;
+      this.form.midTrendMinCandles=0;
+      this.form.shortTrendMaxCandles=0;
+      this.form.shortTrendMinCandles=0;
+    }
+    if(this.form.option === 1){
+      this.form.longTrendMaxDays=0;
+      this.form.longTrendMinDays=0;
+      this.form.midTrendMaxDays=0;
+      this.form.midTrendMinDays=0;
+      this.form.shortTrendMaxDays=0;
+      this.form.shortTrendMinDays=0;
+    }
+  }
+  DeactivateProcessor() {
+    let token = localStorage.getItem("token");
+    if(token)
+    {
+      this.signalRService.DeactivateProcessor(token);
+    } 
+  }
+  async GetProcessorValues() {
+    let token = localStorage.getItem("token");
+    if(token)
+    {
+      try
+      {
+        this.processorInstrumentValues = await this.signalRService.GetProcessorValues(token);
+      }
+      catch(error)
+      {
+        let msg:MyMessageDTO={
+          msgType:"Error",
+          msgVal:error
+        };
+        this.messageBoxService.SendInternalMessage(msg);
+      }
+    }    
+  }
+  GetSubscribedInstruments(){
+    this.subscribedInstruments = this.chartDataService.GetSubscribedElements();           
+  }
+  async InitializeProcessor() {
+    let formCorrect:boolean = this.CheckFormValues();
+    if(formCorrect === true)
+    {
+      let token = localStorage.getItem("token");
+      if(token)
+      {
+        try{
+          this.processorInitialized = await this.signalRService.InitializeProcessor(this.form,token);
+          await this.GetProcessorValues();          
+        }
+        catch{
+          let msg:MyMessageDTO={
+            msgType:"Error",
+            msgVal:"Initialize processor: error while initializing"
+          }
+          this.messageBoxService.SendInternalMessage(msg);
+        }        
+      }    
+    }
+  }
+  async KillProcessor(){
+    let token = localStorage.getItem("token");
+    if(token)
+    {
+      this.processorInitialized = !await this.signalRService.KillProcessor(token);
+    } 
+  }
+  NewSubscribtionListener():void{
+    this.signalRService.NewSubscribtionListener().subscribe((instrument)=>
+    {
+      let index = this.subscribedInstruments.findIndex(e=>e.name === instrument.name);
+      if(index === -1){
+
+        const obj:SubscribtionTablesItem ={
+          name:instrument.name,
+          category:instrument.category,
+          ask:instrument.ask.toString(),
+          bid:instrument.bid.toString(),
+          leverage:instrument.leverage.toString(),
+          waitingResponse:false
+        } 
+        this.subscribedInstruments.push(obj);
+      }
+    });
+  }
+  RemoveSubscribtionListener():void{
+    this.signalRService.RemoveSubscribtionListener().subscribe((instrument)=>{
+      let index = this.subscribedInstruments.findIndex(e=>e.name === instrument);
+      if(index !== -1){
+        this.subscribedInstruments.splice(index,1);
+      }
+    });
+  }
+  SetViewInstrument(){
+    let index = this.processorInstrumentValues.findIndex(e=>e.name === this.currentViewInstrument);
+    if(index !== -1)
+    {
+      this.ViewInstrumentValues.name=this.processorInstrumentValues[index].name;
+      this.ViewInstrumentValues.category=this.processorInstrumentValues[index].category;
+      this.ViewInstrumentValues.leverage=this.processorInstrumentValues[index].leverage;
+      this.ViewInstrumentValues.currentSpread=this.processorInstrumentValues[index].currentSpread;
+      this.ViewInstrumentValues.checkingDuration=this.processorInstrumentValues[index].checkingDuration;
+      this.ViewInstrumentValues.riskAssessment=this.processorInstrumentValues[index].riskAssessment;
+      this.ViewInstrumentValues.minPipsIncome=this.processorInstrumentValues[index].minPipsIncome;
+      this.ViewInstrumentValues.desiredPipsIncome=this.processorInstrumentValues[index].desiredPipsIncome;
+      this.ViewInstrumentValues.stopLossPips=this.processorInstrumentValues[index].stopLossPips;
+    }
+    else
+    {
+      this.ViewInstrumentValues.name='';
+      this.ViewInstrumentValues.category='';
+      this.ViewInstrumentValues.leverage=0;
+      this.ViewInstrumentValues.currentSpread=0;
+      this.ViewInstrumentValues.checkingDuration=0;
+      this.ViewInstrumentValues.riskAssessment=0;
+      this.ViewInstrumentValues.minPipsIncome=0;
+      this.ViewInstrumentValues.desiredPipsIncome=0;
+      this.ViewInstrumentValues.stopLossPips=0;
+    }
+  } 
   async UpdateInstrument(){    
     this.UpdateInstrumentValues.name = this.currentUpdateInstrument;
 
@@ -545,5 +567,22 @@ export class TradingSignalsComponent implements AfterViewInit{
         }
       }
     }    
+  }
+  /////////////////////////LISTENERS//////////////////
+  ActiveProcessorListener():void{
+    this.signalRService.ActiveProcessorListener().subscribe((data)=>{
+      if(data === 'active')
+      {
+        this.isProcessorActive = true;
+        this.processorStatus = "Active";
+        this.processorActive = true;
+      }
+      if(data === 'noActive')
+      {
+        this.isProcessorActive = false;
+        this.processorStatus = "Not active";
+        this.processorActive = false;
+      }
+    });
   }
 }

@@ -19,27 +19,13 @@ import { ChartDataService } from 'src/app/Services/chart-data.service';
 })
 export class ManageInstrumentsComponent implements OnInit {
 
-
-  currentPage:number[] = [1,1];
-  multipage: boolean[] = [false,false];
-  paginationCheck: boolean[][] = [[],[]];
-  paginationDisplay: number[][] = [[],[]];
-  paginationLength: number[]=[5,5];
-  recordPerPage:number=8;
-  
-
+  ascendingSort:boolean=true;
+  categories:string[]=[];
+  currentFilter:string = "Filter";
   currentNavbar: number = 0;
-  navbarCheck: boolean[]=[true,false];
-
-  initialWaiting: boolean = false;
-  responseWaiting: boolean[] = [];
-
-  notSubscribedUnfilteredElements:SubscribtionTablesItem[]=[];
-  notSubscribedElements:SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false}];
-  // subscribedUnfilteredElements:SubscribtionTablesItem[]=[];
-  subscribedElements: SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false}];
-  subscribedFilteredElements: SubscribtionTablesItem[]=[];
-
+  currentPage:number[] = [1,1];
+  currentSort:string = "Sort";
+  currentSortOrder:string = "Ascending";
   filter:FilterCriteria={
     Name:'',
     Category:'',
@@ -48,12 +34,21 @@ export class ManageInstrumentsComponent implements OnInit {
     MinLeverage:'',
     MaxLeverage:''
   }
-  categories:string[]=[];
+  initialWaiting: boolean = false;
+  multipage: boolean[] = [false,false];
+  navbarCheck: boolean[]=[true,false];
+  paginationCheck: boolean[][] = [[],[]];
+  paginationDisplay: number[][] = [[],[]];
+  paginationLength: number[]=[5,5];
+  recordPerPage:number=8;
+  responseWaiting: boolean[] = [];
   sortingCategories:string[]=["Instrument","Category","Ask","Bid","Leverage"];
-  ascendingSort:boolean=true;
-  currentSort:string = "Sort";
-  currentFilter:string = "Filter";
-  currentSortOrder:string = "Ascending";
+
+  notSubscribedUnfilteredElements:SubscribtionTablesItem[]=[];
+  notSubscribedElements:SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false}];
+  // subscribedUnfilteredElements:SubscribtionTablesItem[]=[];
+  subscribedElements: SubscribtionTablesItem[]=[{name:" ",category:" ",ask:" ",bid:" ",leverage:" ",waitingResponse:false}];
+  subscribedFilteredElements: SubscribtionTablesItem[]=[];
 
   constructor(private httpService:HttpServicesService, private router:Router, private signalRService : SignalRService, private chartDataService:ChartDataService) 
   {
@@ -61,14 +56,14 @@ export class ManageInstrumentsComponent implements OnInit {
     this.CreatePagination();
   }
   
-  ngOnInit(): void {
+  ngOnInit(): void 
+  {
     this.UnsubscribedInstrumentsListener();
     this.NewSubscribtionListener();
     this.RemoveSubscribtionListener(); 
-this.GetUnsubscribedItems();    
+    this.GetUnsubscribedItems();    
   }
   
-
   ChangePage(UnsubscribedTable:boolean,page:number){
 
     if(UnsubscribedTable===true)
@@ -92,7 +87,6 @@ this.GetUnsubscribedItems();
     }
     this.currentNavbar=navbarId;
   }
-
   /////////////VISUAL METHODS///////////////////
   AddBlankRecords()
   {
@@ -209,14 +203,6 @@ this.GetUnsubscribedItems();
     this.chartDataService.UpdateElements(this.subscribedElements);
   }
   /////////////////////////////////////////////
-  DeleteRecord(instrument:string) 
-  {    
-    this.subscribedElements=this.subscribedElements.filter(item=>item.name!==instrument); 
-    this.GetCategories(this.notSubscribedUnfilteredElements);
-      this.onSearchInput(this.filter);           
-      this.UpdateTables();
-      this.initialWaiting=false;
-  }
   AddRecord(instrument:SubscribtionTablesDTO) 
   {
     if(this.subscribedElements[this.subscribedElements.length-1].name===" ")
@@ -235,7 +221,15 @@ this.GetUnsubscribedItems();
       this.subscribedElements.push({name:instrument.name,category:instrument.category,ask:instrument.ask.toString(),bid:instrument.bid.toString(),leverage:instrument.leverage.toString(),waitingResponse:false});
     }
     this.UpdateTables();   
-  }
+  }  
+  DeleteRecord(instrument:string) 
+  {    
+    this.subscribedElements=this.subscribedElements.filter(item=>item.name!==instrument); 
+    this.GetCategories(this.notSubscribedUnfilteredElements);
+      this.onSearchInput(this.filter);           
+      this.UpdateTables();
+      this.initialWaiting=false;
+  }  
   ////////////////////////////////////////////
 
   ///////////////LISTENERS////////////////////
@@ -272,8 +266,7 @@ this.GetUnsubscribedItems();
       this.onSearchInput(this.filter);           
       this.initialWaiting=false; 
     });
-  }
-  
+  }  
   ////////////////////////////////////////////
   
   GetUnsubscribedItems():void {
@@ -316,11 +309,6 @@ this.GetUnsubscribedItems();
   /////FILTERING AND SORTING///////////
   GetCategories(objects:SubscribeMenuTableRecord[]):void {
     this.categories= Array.from(new Set(objects.map(obj => obj.category)));
-  }
-  SetCategoryFilter(category:string):void{
-    this.filter.Category=category;
-    this.currentFilter=category;
-    this.onSearchInput(this.filter);
   }
   onSearchInput(filter:FilterCriteria):void {
     if(filter != null)
@@ -385,6 +373,16 @@ this.GetUnsubscribedItems();
       
     }
   }
+  RemoveFilter(){
+    this.filter.Category='';
+    this.currentFilter="Filter";
+    this.onSearchInput(this.filter);
+  }
+  SetCategoryFilter(category:string):void{
+    this.filter.Category=category;
+    this.currentFilter=category;
+    this.onSearchInput(this.filter);
+  }  
   SortItems(category: string,ascending:boolean):void {
     this.notSubscribedElements = this.notSubscribedElements.filter(item => item.name.trim() !== '');
     this.currentSort=category;
@@ -517,11 +515,6 @@ this.GetUnsubscribedItems();
     }
 
     this.AddBlankRecords();
-  }
-  RemoveFilter(){
-    this.filter.Category='';
-    this.currentFilter="Filter";
-    this.onSearchInput(this.filter);
-  }
+  }  
   ////////////////////////////////////
 }

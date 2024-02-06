@@ -92,6 +92,7 @@ export class MainPanelComponent implements OnInit {
     }
 
   }
+  
   ChooseNavbar(navbarId:number){
     for (let i = 0; i < this.navbarCheck.length; i++) 
     {
@@ -105,6 +106,11 @@ export class MainPanelComponent implements OnInit {
   ClearChat():void{
     this.messages=[];
   }
+  DisplayChart(instrument:string, interval:string){
+    this.ChooseNavbar(0);
+    this.chartDataService.UpdateCurrentInstrument(instrument);
+    this.chartDataService.UpdateCurrentInterval(interval);    
+  }
   Logout(){
     this.signalRService.Logout();
     LogoutClear(this.router);
@@ -117,11 +123,6 @@ export class MainPanelComponent implements OnInit {
       let instrument:SubscribeRequestDTO={Jwt:token,Instrument:instrumentName};
       this.signalRService.UnsubscribeInstrument(instrument);
     }
-  }
-  DisplayChart(instrument:string, interval:string){
-    this.ChooseNavbar(0);
-    this.chartDataService.UpdateCurrentInstrument(instrument);
-    this.chartDataService.UpdateCurrentInterval(interval);    
   }
 
   //Listeners
@@ -168,13 +169,6 @@ export class MainPanelComponent implements OnInit {
       this.router.navigate(['']);
     });
   }
-  TokenUpdateListener():void{
-    this.signalRService.UpdateTokenListener().subscribe((data) => 
-    {
-      localStorage.setItem("sessionId",data.sessionId);
-      localStorage.setItem("token", data.token);
-    });
-  }
   NewSubscribtionListener():void{
     this.signalRService.NewSubscribtionListener().subscribe((instrument)=>
     {
@@ -189,6 +183,13 @@ export class MainPanelComponent implements OnInit {
     this.signalRService.RemoveSubscribtionListener().subscribe((instrument)=>{
       this.elements = this.elements.filter(item=>item.name!==instrument);
       this.chartDataService.DeleteSubscribedElements(instrument);
+    });
+  }
+  TokenUpdateListener():void{
+    this.signalRService.UpdateTokenListener().subscribe((data) => 
+    {
+      localStorage.setItem("sessionId",data.sessionId);
+      localStorage.setItem("token", data.token);
     });
   }
   //

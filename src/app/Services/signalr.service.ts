@@ -19,7 +19,7 @@ import { UpdateProcessedInstrumentDTO } from 'src/Models/UpdateProcessedInstrume
 @Injectable({
   providedIn: 'root'
 })
-export class SignalRService {
+export class SignalRService {  
   
   private hubConnection: HubConnection;
   private TokenUpdateSubject: Subject<LoginResponseDTO> = new Subject<LoginResponseDTO>();
@@ -30,6 +30,7 @@ export class SignalRService {
   private RemoveSubscribtionSubject: Subject<string> = new Subject<string>();
   private ChartRecordSubject: Subject<ChartRecordDTO> = new Subject<ChartRecordDTO>();
   private UpdateChartSubject: Subject<UpdateChartDTO> = new Subject<UpdateChartDTO>();
+  private ActiveProcessorSubject: Subject<string> = new Subject<string>();
   constructor(private charDataService:ChartDataService) 
   {
     // Set up the connection
@@ -74,6 +75,9 @@ export class SignalRService {
           });
           this.hubConnection.on("UpdateChart",(chartRecords:UpdateChartDTO)=>{
             this.UpdateChartSubject.next(chartRecords);
+          });
+          this.hubConnection.on("ActivateProcessor",(data:string)=>{
+            this.ActiveProcessorSubject.next(data);
           });
 
           const data:LoginResponseDTO = {sessionId:SessionId, token:Token}
@@ -120,6 +124,13 @@ export class SignalRService {
     });
     return answer;
   }
+  async KillProcessor(token: string):Promise<boolean> {
+    let answer:boolean;
+    await this.hubConnection.invoke('KillProcessor',token).then((data:boolean)=>{
+      answer = data;
+    });
+    return answer;
+  }
   SubscribeInstrument(instrument: SubscribeRequestDTO) {
     this.hubConnection.invoke('SubscribeInstrument', instrument);
   }
@@ -161,7 +172,16 @@ export class SignalRService {
       this.charDataService.UpdateUnsubscribedCategories(data);
     });    
   }
+  ActivateProcessor(token:string){
+    this.hubConnection.invoke('ActivateProcessor',token);
+  }
+  DeactivateProcessor(token:string){
+    this.hubConnection.invoke('DeactivateProcessor',token);
+  }
   //Listeners
+  ActiveProcessorListener():Observable<string>{
+    return this.ActiveProcessorSubject.asObservable();
+  }
   LogoutListener():Observable<any>{
     return this.LogoutSubject.asObservable();
   }
