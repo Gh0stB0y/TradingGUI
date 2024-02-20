@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { InitializeProcessorDTO } from 'src/Models/InitializeProcessorDTO';
 import { SubscribtionTablesItem } from 'src/Models/SubscribeInstruments/SubscribtionTablesItem';
 import { ChartDataService } from 'src/app/Services/chart-data.service';
@@ -8,6 +8,17 @@ import { MessageBoxService } from 'src/app/Services/message-box.service';
 import { MyMessageDTO } from 'src/Models/MyMessageDTO';
 import { ProcessedInstrumentDTO } from 'src/Models/ProcessedInstrumentDTO';
 import { UpdateProcessedInstrumentDTO } from 'src/Models/UpdateProcessedInstrumentDTO';
+
+export type ChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;e
+  xaxis: ApexXAxis;
+  yaxis: ApexYAxis;
+  plotOptions: ApexPlotOptions;
+  dataLabels: ApexDataLabels;
+  stroke: ApexStroke;
+};
+
 @Component({
   selector: 'app-trading-signals',
   templateUrl: './trading-signals.component.html',
@@ -15,6 +26,40 @@ import { UpdateProcessedInstrumentDTO } from 'src/Models/UpdateProcessedInstrume
                 "../../../../css/main.min.css"]
 })
 export class TradingSignalsComponent implements AfterViewInit{
+  @ViewChild("chart") chart: ElementRef; 
+  options:any = {      
+    chart: {
+      height:'100%',
+      width:'100%',
+      title:'MyChart',
+      type: 'candlestick',
+      foreColor: '#FFFFFF',    
+      offsetX:0,
+      offsetY:0,
+      animations:{
+        enabled:true,
+        easing:'linear',
+        speed:500
+      }
+    },
+    tooltip:{
+      enabled:true,
+      theme:'dark',        
+    },
+    series: [
+      {
+        name: 'candles',    
+        data:[]    
+      },        
+    ],
+    xaxis: {
+      type:'datetime'
+    },
+    yaxis:{
+      
+    }
+  };
+  displayChart:ApexCharts;
 
   actionDescribtion:string[]=[];
   checked:number=0;
@@ -64,10 +109,17 @@ export class TradingSignalsComponent implements AfterViewInit{
     this.waitingForResponse = false;
     this.actionDescribtion = describtions;
     if(this.processorInitialized === true)
+    {
       await this.GetProcessorValues();
-    
+      this.InitChart(); 
+    }    
   }
   
+  private InitChart() {
+    this.displayChart = new ApexCharts(this.chart.nativeElement, this.options);
+    this.displayChart.render();
+  }
+
   ActivateProcessor() {
     let token = localStorage.getItem("token");
     if(token)
@@ -101,8 +153,8 @@ export class TradingSignalsComponent implements AfterViewInit{
 
     if(this.form.option === 0)
     {
-      if(this.form.longTrendMaxDays === 0 || this.form.longTrendMinDays === 0 || this.form.midTrendMaxDays === 0 
-        || this.form.midTrendMinDays === 0 || this.form.shortTrendMaxDays === 0)
+      if(this.form.longTrendMaxHours === 0 || this.form.longTrendMinHours === 0 || this.form.midTrendMaxHours === 0 
+        || this.form.midTrendMinHours === 0 || this.form.shortTrendMaxHours === 0)
         {
           let msg:MyMessageDTO={
             msgType:"Error",
@@ -111,7 +163,7 @@ export class TradingSignalsComponent implements AfterViewInit{
           this.messageBoxService.SendInternalMessage(msg);
           return false;
         }
-      if(this.form.longTrendMaxDays<=this.form.longTrendMinDays)
+      if(this.form.longTrendMaxHours<=this.form.longTrendMinHours)
       {
         let msg:MyMessageDTO={
           msgType:"Error",
@@ -120,7 +172,7 @@ export class TradingSignalsComponent implements AfterViewInit{
         this.messageBoxService.SendInternalMessage(msg);
         return false;
       }
-      if(this.form.midTrendMaxDays<=this.form.midTrendMinDays)
+      if(this.form.midTrendMaxHours<=this.form.midTrendMinHours)
       {
         let msg:MyMessageDTO={
           msgType:"Error",
@@ -129,7 +181,7 @@ export class TradingSignalsComponent implements AfterViewInit{
         this.messageBoxService.SendInternalMessage(msg);
         return false;
       }
-      if(this.form.longTrendMaxDays<=this.form.shortTrendMinDays)
+      if(this.form.longTrendMaxHours<=this.form.shortTrendMinHours)
       {
         let msg:MyMessageDTO={
           msgType:"Error",
@@ -139,7 +191,7 @@ export class TradingSignalsComponent implements AfterViewInit{
         return false;
       }
 
-      if(this.form.longTrendMaxDays<=this.form.shortTrendMaxDays ||  this.form.longTrendMaxDays<=this.form.midTrendMaxDays)
+      if(this.form.longTrendMaxHours<=this.form.shortTrendMaxHours ||  this.form.longTrendMaxHours<=this.form.midTrendMaxHours)
       {
         let msg:MyMessageDTO={
           msgType:"Error",
@@ -148,7 +200,7 @@ export class TradingSignalsComponent implements AfterViewInit{
         this.messageBoxService.SendInternalMessage(msg);
         return false;
       }
-      if(this.form.longTrendMinDays<=this.form.shortTrendMinDays ||  this.form.longTrendMinDays<=this.form.midTrendMinDays)
+      if(this.form.longTrendMinHours<=this.form.shortTrendMinHours ||  this.form.longTrendMinHours<=this.form.midTrendMinHours)
       {
         let msg:MyMessageDTO={
           msgType:"Error",
@@ -158,7 +210,7 @@ export class TradingSignalsComponent implements AfterViewInit{
         return false;
       }
 
-      if(this.form.midTrendMinDays<=this.form.shortTrendMinDays)
+      if(this.form.midTrendMinHours<=this.form.shortTrendMinHours)
       {
         let msg:MyMessageDTO={
           msgType:"Error",
@@ -167,7 +219,7 @@ export class TradingSignalsComponent implements AfterViewInit{
         this.messageBoxService.SendInternalMessage(msg);
         return false;
       }
-      if(this.form.midTrendMaxDays<=this.form.shortTrendMaxDays)
+      if(this.form.midTrendMaxHours<=this.form.shortTrendMaxHours)
       {
         let msg:MyMessageDTO={
           msgType:"Error",
@@ -393,7 +445,7 @@ export class TradingSignalsComponent implements AfterViewInit{
   ChooseOption(option: number) {
     this.form.option=option;
     this.checked=option;
-    if(this.form.option === 0){
+    if(this.form.option === 1){
       this.form.longTrendMaxCandles=0;
       this.form.longTrendMinCandles=0;
       this.form.midTrendMaxCandles=0;
@@ -401,13 +453,13 @@ export class TradingSignalsComponent implements AfterViewInit{
       this.form.shortTrendMaxCandles=0;
       this.form.shortTrendMinCandles=0;
     }
-    if(this.form.option === 1){
-      this.form.longTrendMaxDays=0;
-      this.form.longTrendMinDays=0;
-      this.form.midTrendMaxDays=0;
-      this.form.midTrendMinDays=0;
-      this.form.shortTrendMaxDays=0;
-      this.form.shortTrendMinDays=0;
+    if(this.form.option === 2){
+      this.form.longTrendMaxHours=0;
+      this.form.longTrendMinHours=0;
+      this.form.midTrendMaxHours=0;
+      this.form.midTrendMinHours=0;
+      this.form.shortTrendMaxHours=0;
+      this.form.shortTrendMinHours=0;
     }
   }
   DeactivateProcessor() {
@@ -447,7 +499,8 @@ export class TradingSignalsComponent implements AfterViewInit{
       {
         try{
           this.processorInitialized = await this.signalRService.InitializeProcessor(this.form,token);
-          await this.GetProcessorValues();          
+          await this.GetProcessorValues();    
+          this.InitChart();      
         }
         catch{
           let msg:MyMessageDTO={
@@ -464,6 +517,9 @@ export class TradingSignalsComponent implements AfterViewInit{
     if(token)
     {
       this.processorInitialized = !await this.signalRService.KillProcessor(token);
+      this.form= new InitializeProcessorDTO();
+      this.processorStatus="Not active";
+      this.processorActive = false;
     } 
   }
   NewSubscribtionListener():void{
@@ -568,6 +624,29 @@ export class TradingSignalsComponent implements AfterViewInit{
       }
     }    
   }
+
+
+
+
+  PrintChart(){
+    const chartRecord = this.chartDataService.GetChartData();
+    this.displayChart.updateSeries([{
+      name:'candles',
+      data:[]
+    }]);
+    if(chartRecord !== undefined)
+    {
+      this.displayChart.appendData([{
+        name:'candles',
+        data:chartRecord.data
+      }]);
+    }
+
+  }
+
+
+
+
   /////////////////////////LISTENERS//////////////////
   ActiveProcessorListener():void{
     this.signalRService.ActiveProcessorListener().subscribe((data)=>{

@@ -45,7 +45,7 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" (click)="ChooseOption(0)" checked>
                                 <label class="form-check-label" for="flexRadioDefault1">
-                                    Processing scope - days
+                                    Processing scope - hours
                                 </label>
                             </div>
 
@@ -53,20 +53,20 @@
     
                                 <div class="d-flex my-2">
                                     <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Long trend: </p>
-                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="longTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMinDays" min="0">
-                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="longTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMaxDays" min="1">  
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="longTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMinHours" min="0">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="longTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.longTrendMaxHours" min="1">  
                                 </div>
                                                             
                                 <div class="d-flex my-2">
                                     <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Mid trend: </p>
-                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="midTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMinDays" min="0"> 
-                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="midTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMaxDays" min="1"> 
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="midTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMinHours" min="0"> 
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="midTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.midTrendMaxHours" min="1"> 
                                 </div>
                                                             
                                 <div class="d-flex my-2">
                                     <p class="container d-flex align-items-center w-auto h-100 my-0 ms-0 me-auto p-2">Short trend: </p>
-                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="shortTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMinDays" min="0">
-                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="shortTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMaxDays" min="1">
+                                    <input class="form-control mx-2 px-2" type="number" placeholder="Min" aria-label="Search" style="width: 20%;" name="shortTrendMinDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMinHours" min="0">
+                                    <input class="form-control my-0 ms-2 me-5 px-2" type="number" placeholder="Max" aria-label="Search" style="width: 20%;" name="shortTrendMaxDays" [disabled]="checked!==0" [(ngModel)]="form.shortTrendMaxHours" min="1">
                                 </div>
     
                             </div>      
@@ -76,7 +76,7 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" (click)="ChooseOption(1)">
                                 <label class="form-check-label" for="flexRadioDefault2">
-                                    Processing scope - candles
+                                    Processing scope - candles (available soon)
                                 </label>
                             </div>
 
@@ -144,7 +144,7 @@
     
         <div *ngIf="processorInitialized" class="container h-100 w-100">
 
-            <div class="UpperMenu d-flex container-fluid" style="width: 100%; height: 10%;">
+            <div class="UpperMenu d-flex container-fluid py-2" style="width: 100%; height: 10%;">
                 <div class="d-flex alert h-100 my-0 me-auto py-2 px-4 align-items-center fs-4" [ngClass]="{'alert-success': isProcessorActive, 'alert-danger': !isProcessorActive} " role="alert">
                     Processor status: {{processorStatus}}
                 </div>
@@ -160,97 +160,98 @@
                     </div>
                 </div>                
             </div>
-            <div class="LowerMenu d-flex container-fluid row" style="width: 100%; height: 80%;">
-                <div class="col h-auto bg-dark-subtle my-5 mx-2 p-0">
-                    <p class="fs-5 text-center w-100 m-0 p-1">Currently processed instruments</p>
-                    <select class="form-select border border-0 rounded-0 bg-transparent w-100 m-0 p-2 text-center" style="height: 10%;" aria-label="Default select example" [(ngModel)]="currentViewInstrument" (change)="SetViewInstrument()">
+            <div class="LowerMenu d-flex container-fluid row" style="width: 100%; height: 45%;">
+                <div class="col h-auto bg-dark-subtle my-0 mx-2 p-0">
+                    
+                    <select class="form-select border border-0 rounded-0 bg-transparent w-100 m-0 p-1 text-center" style="height: 10%;" aria-label="Default select example" [(ngModel)]="currentViewInstrument" (change)="SetViewInstrument()">
                         <option class="bg-dark" value="1" selected>View processed instruments</option>
                         <option *ngFor="let instrument of subscribedInstruments" class="bg-dark" value="{{instrument.name}}">{{instrument.name}}</option>
                     </select>
 
-                    <div class="w-100 h-auto mx-2 my-4 p-0">
-                        <div class="d-flex container-fluid w-auto m-2 p-0">
-                            <p class="d-flex h-auto align-items-center me-auto">Category:</p>
-                            <p class="d-flex h-auto align-items-center me-4">{{ViewInstrumentValues.category}}</p>
+                    <div class="w-100 mx-2 my-0 p-0" style="height: 90%;">
+                        <div class="d-flex container-fluid w-auto m-2 my-1 p-0" style="height:auto;">
+                            <p class="d-flex h-auto align-items-center my-0 me-auto">Category:</p>
+                            <p class="d-flex h-auto align-items-center my-0 me-4">{{ViewInstrumentValues.category}}</p>
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 p-0">
-                            <p class="d-flex h-auto align-items-center me-auto">Leverage:</p>
-                            <p class="d-flex h-auto align-items-center me-4">{{ViewInstrumentValues.leverage.toString()}}%</p>
+                        <div class="d-flex container-fluid w-auto m-2 my-1 p-0" style="height: auto;">
+                            <p class="d-flex h-auto align-items-center my-0 me-auto">Leverage:</p>
+                            <p class="d-flex h-auto align-items-center my-0 me-4">{{ViewInstrumentValues.leverage.toString()}}%</p>
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 p-0">
-                            <p class="d-flex h-auto align-items-center me-auto">Current spread:</p>
-                            <p class="d-flex h-auto align-items-center me-4">{{ViewInstrumentValues.currentSpread.toString()}}</p>
+                        <div class="d-flex container-fluid w-auto m-2 my-1 p-0" style="height: auto;">
+                            <p class="d-flex h-auto align-items-center my-0 me-auto">Current spread:</p>
+                            <p class="d-flex h-auto align-items-center my-0 me-4">{{ViewInstrumentValues.currentSpread.toString()}}</p>
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 p-0">
-                            <p class="d-flex h-auto align-items-center me-auto">Checking duration:</p>
-                            <p class="d-flex h-auto align-items-center me-4">{{ViewInstrumentValues.checkingDuration.toString()}}</p>
+                        <div class="d-flex container-fluid w-auto m-2 my-1 p-0" style="height: auto;">
+                            <p class="d-flex h-auto align-items-center my-0 me-auto">Checking duration:</p>
+                            <p class="d-flex h-auto align-items-center my-0 me-4">{{ViewInstrumentValues.checkingDuration.toString()}}</p>
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 p-0">
-                            <p class="d-flex h-auto align-items-center me-auto">Risk assessment:</p>
-                            <p class="d-flex h-auto align-items-center me-4">{{ViewInstrumentValues.riskAssessment.toString()}}</p>
+                        <div class="d-flex container-fluid w-auto m-2 my-1 p-0" style="height: auto;">
+                            <p class="d-flex h-auto align-items-center my-0 me-auto">Risk assessment:</p>
+                            <p class="d-flex h-auto align-items-center my-0 me-4">{{ViewInstrumentValues.riskAssessment.toString()}}</p>
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 p-0">
-                            <p class="d-flex h-auto align-items-center me-auto">Minimum pips income:</p>
-                            <p class="d-flex h-auto align-items-center me-4">{{ViewInstrumentValues.minPipsIncome.toString()}}</p>
+                        <div class="d-flex container-fluid w-auto m-2 my-1 p-0" style="height: auto;">
+                            <p class="d-flex h-auto align-items-center my-0 me-auto">Minimum pips income:</p>
+                            <p class="d-flex h-auto align-items-center my-0 me-4">{{ViewInstrumentValues.minPipsIncome.toString()}}</p>
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 p-0">
-                            <p class="d-flex h-auto align-items-center me-auto">Desired pips income:</p> 
-                            <p class="d-flex h-auto align-items-center me-4">{{ViewInstrumentValues.desiredPipsIncome.toString()}}</p>
+                        <div class="d-flex container-fluid w-auto m-2 my-1 p-0" style="height: auto;">
+                            <p class="d-flex h-auto align-items-center my-0 me-auto">Desired pips income:</p> 
+                            <p class="d-flex h-auto align-items-center my-0 me-4">{{ViewInstrumentValues.desiredPipsIncome.toString()}}</p>
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 p-0">
-                            <p class="d-flex h-auto align-items-center me-auto">Stop loss pips:</p>
-                            <p class="d-flex h-auto align-items-center me-4">{{ViewInstrumentValues.stopLossPips.toString()}}</p>
+                        <div class="d-flex container-fluid w-auto m-2 my-1 p-0" style="height: auto;">
+                            <p class="d-flex h-auto align-items-center my-0 me-auto">Stop loss pips:</p>
+                            <p class="d-flex h-auto align-items-center my-0 me-4">{{ViewInstrumentValues.stopLossPips.toString()}}</p>
                         </div>                       
                     </div>
 
                 </div>
-                <div class="col h-auto bg-dark-subtle my-5 mx-2 p-0">
-
-                    <p class="fs-5 text-center w-100 m-0 p-1">Update values</p>
-                    <select class="form-select border border-0 rounded-0 bg-transparent w-100 m-0 p-2 text-center" style="height: 10%;" aria-label="Default select example" [(ngModel)]="currentUpdateInstrument" (change)="SetViewInstrument()">
+                <div class="col h-auto bg-dark-subtle my-0 mx-2 p-0">
+                    
+                    <select class="form-select border border-0 rounded-0 bg-transparent w-100 m-0 p-1 text-center" style="height: 10%;" aria-label="Default select example" [(ngModel)]="currentUpdateInstrument" (change)="SetViewInstrument()">
                         <option class="bg-dark" value="1">Update processed instruments</option>
                         <option *ngFor="let instrument of subscribedInstruments" class="bg-dark" value="{{instrument.name}}">{{instrument.name}}</option>
                     </select>
                     
-                    <div class="w-100 h-auto mx-2 my-4 p-0">                       
-                        <div class="d-flex container-fluid w-auto m-2 my-4 p-0">
+                    <div class="w-100 mx-2 my-0 p-0" style="height: 75%;">                       
+                        <div class="d-flex container-fluid w-auto m-2 my-0 p-0" style="height: 20%;">
                             <p class="d-flex h-auto align-items-center m-0 me-auto">Checking duration (hours):</p>
-                            <input class="form-control mx-4 px-2 h-100" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" [(ngModel)]="UpdateInstrumentValues.checkingDuration">
+                            <input class="form-control my-1 mx-4 px-2 h-auto" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" [(ngModel)]="UpdateInstrumentValues.checkingDuration">
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 my-4 p-0">
+                        <div class="d-flex container-fluid w-auto m-2 my-0 p-0" style="height: 20%;">
                             <p class="d-flex h-auto align-items-center m-0 me-auto">Risk assessment (1 - 5):</p>
-                            <input class="form-control mx-4 px-2 h-100" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" max="5" [(ngModel)]="UpdateInstrumentValues.riskAssessment">
+                            <input class="form-control my-1 mx-4 px-2 h-auto" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" max="5" [(ngModel)]="UpdateInstrumentValues.riskAssessment">
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 my-4 p-0">
+                        <div class="d-flex container-fluid w-auto m-2 my-0 p-0" style="height: 20%;">
                             <p class="d-flex h-auto align-items-center m-0 me-auto">Minimum pips income:</p>
-                            <input class="form-control mx-4 px-2 h-100" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" [(ngModel)]="UpdateInstrumentValues.minPipsIncome">
+                            <input class="form-control my-1 mx-4 px-2 h-auto" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" [(ngModel)]="UpdateInstrumentValues.minPipsIncome">
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 my-4 p-0">
+                        <div class="d-flex container-fluid w-auto m-2 my-0 p-0" style="height: 20%;">
                             <p class="d-flex h-auto align-items-center m-0 me-auto">Desired pips income:</p> 
-                            <input class="form-control mx-4 px-2 h-100" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" [(ngModel)]="UpdateInstrumentValues.desiredPipsIncome">
+                            <input class="form-control my-1 mx-4 px-2 h-auto" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" [(ngModel)]="UpdateInstrumentValues.desiredPipsIncome">
                         </div>
-                        <div class="d-flex container-fluid w-auto m-2 my-4 p-0">
+                        <div class="d-flex container-fluid w-auto m-2 my-0 p-0" style="height: 20%;">
                             <p class="d-flex h-auto align-items-center m-0 me-auto">Stop loss pips:</p>
-                            <input class="form-control mx-4 px-2 h-100" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" [(ngModel)]="UpdateInstrumentValues.stopLossPips">
+                            <input class="form-control my-1 mx-4 px-2 h-auto" type="number" aria-label="Search" style="width: 20%;" name="longTrendMinDays" min="0" [(ngModel)]="UpdateInstrumentValues.stopLossPips">
                         </div>                       
                     </div>
 
-                    <div class="w-100 d-flex justify-content-center">
+                    <div class="w-100 d-flex justify-content-center my-0 py-1" style="height: 15%;">
                         <button class="btn btn-primary" (click)="UpdateInstrument()">Update</button>
                     </div>
                     
-
                 </div>
-                <div class="col h-auto bg-dark-subtle my-5 mx-2 p-0">
-                    <div class="d-flex container-fluid py-0 px-auto m-0 w-100 mx-auto" style="height: 10%;">
+                <div class="col h-auto bg-dark-subtle my-0 mx-2 p-0">
+                    <div class="d-flex container-fluid py-0 px-auto m-0 w-100 mx-auto" style="height: 15%;">
                         <button class="btn btn-primary w-50 p-1 my-2 mx-1" >Add instrument</button>
                         <button class="btn btn-danger w-50 p-1 my-2 mx-1">Delete instrument</button>
                     </div>
                 </div>
             </div>
+            <div class="chart-box py-1 px-5" style="height: 45%;">
+                <div id="chart" #chart></div>
+            </div>
             
         </div>    
-
+        
     </div>
    
 

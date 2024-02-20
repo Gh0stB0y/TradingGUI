@@ -236,7 +236,6 @@ export class ManageChartsComponent implements AfterViewInit{
         data:chartRecord.data
       }]);
     }
-
   }
   PrintInstrumentProperties(){
     

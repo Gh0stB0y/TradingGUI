@@ -2,13 +2,13 @@ export class InitializeProcessorDTO{
     Instruments:string[] = [];
     option:number = 0;
 
-    longTrendMaxDays:number = 0;
-    midTrendMaxDays:number = 0;
-    shortTrendMaxDays:number = 0;
+    longTrendMaxHours:number = 0;
+    midTrendMaxHours:number = 0;
+    shortTrendMaxHours:number = 0;
 
-    longTrendMinDays:number = 0;
-    midTrendMinDays:number = 0;
-    shortTrendMinDays:number = 0;
+    longTrendMinHours:number = 0;
+    midTrendMinHours:number = 0;
+    shortTrendMinHours:number = 0;
 
     longTrendMinCandles:number = 0;
     midTrendMinCandles:number = 0;
